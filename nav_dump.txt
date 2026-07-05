@@ -1,0 +1,226 @@
+<nav class="framer-s9D2D framer-1p3c309 framer-v-1eb5et2" data-framer-name="Dark - Desktop" style="background-color:rgba(0, 0, 0, 0); width:100%">
+<div class="framer-zwlrr9" data-framer-name="Wrap">
+<div class="framer-1azrsnq" data-framer-name="Line Left" style="background-color:var(--token-1a0abee7-397d-4863-a181-709f5463ebcd, rgba(255, 255, 255, 0.1))">
+</div>
+<div class="framer-1fe6q6n" data-framer-name="Line Right" style="background-color:var(--token-1a0abee7-397d-4863-a181-709f5463ebcd, rgba(255, 255, 255, 0.1))">
+</div>
+<div class="framer-1cwb5qt" data-framer-name="Line Bottom" style="background-color:var(--token-1a0abee7-397d-4863-a181-709f5463ebcd, rgba(255, 255, 255, 0.1))">
+</div>
+<div class="framer-1mtmba" data-framer-name="Line SM Left" style="background-color:var(--token-1a0abee7-397d-4863-a181-709f5463ebcd, rgba(255, 255, 255, 0.1))">
+</div>
+<div class="framer-1wg2bfk" data-framer-name="Line SM Right" style="background-color:var(--token-1a0abee7-397d-4863-a181-709f5463ebcd, rgba(255, 255, 255, 0.1))">
+</div>
+<div class="framer-1ujr9vo" data-framer-name="Content">
+<div class="framer-1wd8sgv" data-framer-name="Left">
+<div class="framer-5qny4e-container">
+<div class="framer-kl0AZ framer-rz9Uk framer-1amsmis framer-v-xcfglf" data-border="true" data-framer-name="White - Desktop" data-highlight="true" style="--border-bottom-width:1px; --border-color:var(--token-1a0abee7-397d-4863-a181-709f5463ebcd, rgba(255, 255, 255, 0.1)); --border-left-width:1px; --border-right-width:1px; --border-style:solid; --border-top-width:1px; backdrop-filter:blur(10px); background-color:var(--token-65b5a803-8ac1-4b74-ae85-379d655ee36d, rgba(255, 255, 255, 0.06)); -webkit-backdrop-filter:blur(10px)" tabindex="0">
+<div class="framer-9uotoe" data-framer-name="Icon">
+<div class="framer-ws42ob" data-framer-name="01" style="background-color:var(--token-8a770b25-5a0f-4746-8745-fd4cb88ece03, rgb(255, 255, 255))">
+</div>
+<div class="framer-5bju0r" data-framer-name="02" style="background-color:var(--token-8a770b25-5a0f-4746-8745-fd4cb88ece03, rgb(255, 255, 255))">
+</div>
+<div class="framer-e18dk8" data-framer-name="03" style="background-color:var(--token-8a770b25-5a0f-4746-8745-fd4cb88ece03, rgb(255, 255, 255))">
+</div>
+<div class="framer-vtezd2" data-framer-name="04" style="background-color:var(--token-8a770b25-5a0f-4746-8745-fd4cb88ece03, rgb(255, 255, 255))">
+</div>
+<div class="framer-4tl2i4" data-framer-name="05" style="background-color:var(--token-8a770b25-5a0f-4746-8745-fd4cb88ece03, rgb(255, 255, 255))">
+</div>
+</div>
+<div class="framer-1hhksx1-container" data-code-component-plugin-id="84d4c1">
+<!--$-->
+<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; user-select:none; cursor:pointer">
+<div style="padding:8px 16px 8px 40px; width:100%; height:100%; display:flex; align-items:center; justify-content:center; gap:0.4px; text-transform:uppercase">
+<span style="position:relative; display:inline-block; height:1em; overflow:hidden; font-family:&quot; Geist&quot; , &quot; Geist Placeholder&quot; , sans-serif; font-size:14px; font-weight:600; font-style:normal; line-height:1">
+<span style="display:grid; grid-auto-rows:1em; transition-property:transform; transition-duration:250ms; transition-timing-function:cubic-bezier(.25,.75,.25,1); transition-delay:0ms">
+<span style="color:var(--token-8a770b25-5a0f-4746-8745-fd4cb88ece03, rgb(255, 255, 255))">
+M</span>
+<span style="color:var(--token-8a770b25-5a0f-4746-8745-fd4cb88ece03, rgb(255, 255, 255))">
+M</span>
+</span>
+</span>
+<span style="position:relative; display:inline-block; height:1em; overflow:hidden; font-family:&quot; Geist&quot; , &quot; Geist Placeholder&quot; , sans-serif; font-size:14px; font-weight:600; font-style:normal; line-height:1">
+<span style="display:grid; grid-auto-rows:1em; transition-property:transform; transition-duration:250ms; transition-timing-function:cubic-bezier(.25,.75,.25,1); transition-delay:18ms">
+<span style="color:var(--token-8a770b25-5a0f-4746-8745-fd4cb88ece03, rgb(255, 255, 255))">
+e</span>
+<span style="color:var(--token-8a770b25-5a0f-4746-8745-fd4cb88ece03, rgb(255, 255, 255))">
+e</span>
+</span>
+</span>
+<span style="position:relative; display:inline-block; height:1em; overflow:hidden; font-family:&quot; Geist&quot; , &quot; Geist Placeholder&quot; , sans-serif; font-size:14px; font-weight:600; font-style:normal; line-height:1">
+<span style="display:grid; grid-auto-rows:1em; transition-property:transform; transition-duration:250ms; transition-timing-function:cubic-bezier(.25,.75,.25,1); transition-delay:36ms">
+<span style="color:var(--token-8a770b25-5a0f-4746-8745-fd4cb88ece03, rgb(255, 255, 255))">
+n</span>
+<span style="color:var(--token-8a770b25-5a0f-4746-8745-fd4cb88ece03, rgb(255, 255, 255))">
+n</span>
+</span>
+</span>
+<span style="position:relative; display:inline-block; height:1em; overflow:hidden; font-family:&quot; Geist&quot; , &quot; Geist Placeholder&quot; , sans-serif; font-size:14px; font-weight:600; font-style:normal; line-height:1">
+<span style="display:grid; grid-auto-rows:1em; transition-property:transform; transition-duration:250ms; transition-timing-function:cubic-bezier(.25,.75,.25,1); transition-delay:54ms">
+<span style="color:var(--token-8a770b25-5a0f-4746-8745-fd4cb88ece03, rgb(255, 255, 255))">
+u</span>
+<span style="color:var(--token-8a770b25-5a0f-4746-8745-fd4cb88ece03, rgb(255, 255, 255))">
+u</span>
+</span>
+</span>
+</div>
+</div>
+<!--/$-->
+</div>
+</div>
+</div>
+</div>
+<div class="framer-1b226dy" data-framer-name="Center">
+<!--$-->
+<a class="framer-1rq7f4y framer-17a941l" href="/index.html" style="width: auto; aspect-ratio: unset; display: flex; align-items: center; gap: 10px; text-decoration: none">
+
+          <img src="/assets/Ample.ai.svg" alt="AmpletechAI Logo" style="height: 44px; width: 44px; object-fit: contain">
+
+          <span style="font-family: 'PP Neue Montreal', 'Neue Montreal', 'Geist', sans-serif; font-size: 24px; font-weight: 700; color: #ffffff; letter-spacing: -0.02em; text-transform: none">
+AmpletechAI</span>
+
+        </a>
+<!--/$-->
+</div>
+<div class="framer-1ejzk5i" data-framer-name="Right">
+<div class="framer-oonmhj-container">
+<!--$-->
+<a class="framer-mH862 framer-1k8301g framer-v-1k8301g framer-z33h3e" data-border="true" data-framer-name="Default - Desktop" data-highlight="true" style="--border-bottom-width:1px; --border-color:var(--token-1a0abee7-397d-4863-a181-709f5463ebcd, rgba(255, 255, 255, 0.1)); --border-left-width:1px; --border-right-width:1px; --border-style:solid; --border-top-width:1px; backdrop-filter:blur(10px); background-color:var(--token-65b5a803-8ac1-4b74-ae85-379d655ee36d, rgba(255, 255, 255, 0.1)); -webkit-backdrop-filter:blur(10px)" href="https://cal.com/" target="_blank" rel="noopener" tabindex="0">
+<div class="framer-1gzjibr" data-border="true" data-framer-name="Avatar" style="--border-bottom-width:0px; --border-color:var(--token-1a0abee7-397d-4863-a181-709f5463ebcd, rgba(255, 255, 255, 0.1)); --border-left-width:0px; --border-right-width:1px; --border-style:solid; --border-top-width:0px">
+<div class="framer-1g3y0ml">
+<div style="position:absolute; border-radius:inherit; corner-shape:inherit; top:0; right:0; bottom:0; left:0" data-framer-background-image-wrapper="true">
+<img decoding="async" width="120" height="120" src="https://framerusercontent.com/images/jm0dvrhBRn67BN7gXkLvk9Ymi4.jpg?width=120&amp;height=120" alt="Avatar" style="display:block; width:100%; height:100%; border-radius:inherit; corner-shape:inherit; object-position:center; object-fit:cover">
+</div>
+</div>
+</div>
+<div class="framer-p9kv30-container" data-code-component-plugin-id="84d4c1">
+<!--$-->
+<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; user-select:none; cursor:pointer">
+<div style="padding:10px 56px 10px 56px; width:100%; height:100%; display:flex; align-items:center; justify-content:center; gap:0.4px; text-transform:uppercase">
+<span style="position:relative; display:inline-block; height:1em; overflow:hidden; font-family:&quot; Geist&quot; , &quot; Geist Placeholder&quot; , sans-serif; font-size:14px; font-weight:600; font-style:normal; line-height:1">
+<span style="display:grid; grid-auto-rows:1em; transition-property:transform; transition-duration:250ms; transition-timing-function:cubic-bezier(.25,.75,.25,1); transition-delay:0ms">
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+B</span>
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+B</span>
+</span>
+</span>
+<span style="position:relative; display:inline-block; height:1em; overflow:hidden; font-family:&quot; Geist&quot; , &quot; Geist Placeholder&quot; , sans-serif; font-size:14px; font-weight:600; font-style:normal; line-height:1">
+<span style="display:grid; grid-auto-rows:1em; transition-property:transform; transition-duration:250ms; transition-timing-function:cubic-bezier(.25,.75,.25,1); transition-delay:18ms">
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+o</span>
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+o</span>
+</span>
+</span>
+<span style="position:relative; display:inline-block; height:1em; overflow:hidden; font-family:&quot; Geist&quot; , &quot; Geist Placeholder&quot; , sans-serif; font-size:14px; font-weight:600; font-style:normal; line-height:1">
+<span style="display:grid; grid-auto-rows:1em; transition-property:transform; transition-duration:250ms; transition-timing-function:cubic-bezier(.25,.75,.25,1); transition-delay:36ms">
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+o</span>
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+o</span>
+</span>
+</span>
+<span style="position:relative; display:inline-block; height:1em; overflow:hidden; font-family:&quot; Geist&quot; , &quot; Geist Placeholder&quot; , sans-serif; font-size:14px; font-weight:600; font-style:normal; line-height:1">
+<span style="display:grid; grid-auto-rows:1em; transition-property:transform; transition-duration:250ms; transition-timing-function:cubic-bezier(.25,.75,.25,1); transition-delay:54ms">
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+k</span>
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+k</span>
+</span>
+</span>
+<span style="position:relative; display:inline-block; height:1em; overflow:hidden; font-family:&quot; Geist&quot; , &quot; Geist Placeholder&quot; , sans-serif; font-size:14px; font-weight:600; font-style:normal; line-height:1">
+<span style="display:grid; grid-auto-rows:1em; transition-property:transform; transition-duration:250ms; transition-timing-function:cubic-bezier(.25,.75,.25,1); transition-delay:72ms">
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+&nbsp;</span>
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+&nbsp;</span>
+</span>
+</span>
+<span style="position:relative; display:inline-block; height:1em; overflow:hidden; font-family:&quot; Geist&quot; , &quot; Geist Placeholder&quot; , sans-serif; font-size:14px; font-weight:600; font-style:normal; line-height:1">
+<span style="display:grid; grid-auto-rows:1em; transition-property:transform; transition-duration:250ms; transition-timing-function:cubic-bezier(.25,.75,.25,1); transition-delay:90ms">
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+a</span>
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+a</span>
+</span>
+</span>
+<span style="position:relative; display:inline-block; height:1em; overflow:hidden; font-family:&quot; Geist&quot; , &quot; Geist Placeholder&quot; , sans-serif; font-size:14px; font-weight:600; font-style:normal; line-height:1">
+<span style="display:grid; grid-auto-rows:1em; transition-property:transform; transition-duration:250ms; transition-timing-function:cubic-bezier(.25,.75,.25,1); transition-delay:108ms">
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+&nbsp;</span>
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+&nbsp;</span>
+</span>
+</span>
+<span style="position:relative; display:inline-block; height:1em; overflow:hidden; font-family:&quot; Geist&quot; , &quot; Geist Placeholder&quot; , sans-serif; font-size:14px; font-weight:600; font-style:normal; line-height:1">
+<span style="display:grid; grid-auto-rows:1em; transition-property:transform; transition-duration:250ms; transition-timing-function:cubic-bezier(.25,.75,.25,1); transition-delay:126ms">
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+c</span>
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+c</span>
+</span>
+</span>
+<span style="position:relative; display:inline-block; height:1em; overflow:hidden; font-family:&quot; Geist&quot; , &quot; Geist Placeholder&quot; , sans-serif; font-size:14px; font-weight:600; font-style:normal; line-height:1">
+<span style="display:grid; grid-auto-rows:1em; transition-property:transform; transition-duration:250ms; transition-timing-function:cubic-bezier(.25,.75,.25,1); transition-delay:144ms">
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+a</span>
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+a</span>
+</span>
+</span>
+<span style="position:relative; display:inline-block; height:1em; overflow:hidden; font-family:&quot; Geist&quot; , &quot; Geist Placeholder&quot; , sans-serif; font-size:14px; font-weight:600; font-style:normal; line-height:1">
+<span style="display:grid; grid-auto-rows:1em; transition-property:transform; transition-duration:250ms; transition-timing-function:cubic-bezier(.25,.75,.25,1); transition-delay:162ms">
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+l</span>
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+l</span>
+</span>
+</span>
+<span style="position:relative; display:inline-block; height:1em; overflow:hidden; font-family:&quot; Geist&quot; , &quot; Geist Placeholder&quot; , sans-serif; font-size:14px; font-weight:600; font-style:normal; line-height:1">
+<span style="display:grid; grid-auto-rows:1em; transition-property:transform; transition-duration:250ms; transition-timing-function:cubic-bezier(.25,.75,.25,1); transition-delay:180ms">
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+l</span>
+<span style="color:var(--token-86429bfd-5f41-491b-a262-970b52647f38, rgb(241, 241, 241))">
+l</span>
+</span>
+</span>
+</div>
+</div>
+<!--/$-->
+</div>
+<div class="framer-weh68u" data-border="true" data-framer-name="Icon" style="--border-bottom-width:0px; --border-color:var(--token-1a0abee7-397d-4863-a181-709f5463ebcd, rgba(255, 255, 255, 0.1)); --border-left-width:1px; --border-right-width:0px; --border-style:solid; --border-top-width:0px; background-color:rgba(0, 0, 0, 0)">
+<div class="framer-8gh0j8" data-framer-name="Wrap">
+<div class="framer-5wfk5o">
+<div style="position:absolute; border-radius:inherit; corner-shape:inherit; top:0; right:0; bottom:0; left:0" data-framer-background-image-wrapper="true">
+<img decoding="async" width="11" height="11" src="https://framerusercontent.com/images/azEAmAwosdFlm0ktDPjL7e0WXI.svg?width=11&amp;height=11" alt="Icon" style="display:block; width:100%; height:100%; border-radius:inherit; corner-shape:inherit; object-position:center; object-fit:contain">
+</div>
+</div>
+<div class="framer-1nlw4hw" data-framer-name="Hover Icon">
+<div style="position:absolute; border-radius:inherit; corner-shape:inherit; top:0; right:0; bottom:0; left:0" data-framer-background-image-wrapper="true">
+<img decoding="async" width="11" height="11" src="https://framerusercontent.com/images/azEAmAwosdFlm0ktDPjL7e0WXI.svg?width=11&amp;height=11" alt="Icon" style="display:block; width:100%; height:100%; border-radius:inherit; corner-shape:inherit; object-position:center; object-fit:contain">
+</div>
+</div>
+</div>
+</div>
+</a>
+<!--/$-->
+</div>
+</div>
+</div>
+<div class="framer-1v9w0rm-container">
+<div class="framer-0GGp7 framer-1omnndd framer-v-1vkb8um" data-framer-name="White 10%" style="opacity:0.1">
+<div style="position:absolute; border-radius:inherit; corner-shape:inherit; top:0; right:0; bottom:0; left:0" data-framer-background-image-wrapper="true">
+<img decoding="async" width="21" height="21" src="https://framerusercontent.com/images/7EXxkkTyRAFGhZUM1zHsp2oYe7A.svg?width=21&amp;height=21" alt="Vector" style="display:block; width:100%; height:100%; border-radius:inherit; corner-shape:inherit; object-position:center; object-fit:contain">
+</div>
+</div>
+</div>
+<div class="framer-1armhdj-container">
+<div class="framer-0GGp7 framer-1omnndd framer-v-1vkb8um" data-framer-name="White 10%" style="opacity:0.1">
+<div style="position:absolute; border-radius:inherit; corner-shape:inherit; top:0; right:0; bottom:0; left:0" data-framer-background-image-wrapper="true">
+<img decoding="async" width="21" height="21" src="https://framerusercontent.com/images/7EXxkkTyRAFGhZUM1zHsp2oYe7A.svg?width=21&amp;height=21" alt="Vector" style="display:block; width:100%; height:100%; border-radius:inherit; corner-shape:inherit; object-position:center; object-fit:contain">
+</div>
+</div>
+</div>
+</div>
+</nav>
+
