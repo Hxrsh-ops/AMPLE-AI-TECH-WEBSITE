@@ -5,7 +5,9 @@ exports.handler = async (event, context) => {
   const origin = event.headers.origin || event.headers.Origin || '';
   const allowedOrigins = [
     /^http:\/\/localhost(:\d+)?$/,
-    /^https:\/\/([a-zA-Z0-9-]+\.)?netlify\.app$/
+    /^https:\/\/([a-zA-Z0-9-]+\.)?netlify\.app$/,
+    /^https:\/\/ampletechai\.com$/,
+    /^https:\/\/www\.ampletechai\.com$/
   ];
   let corsOrigin = '';
   if (allowedOrigins.some(regex => regex.test(origin))) {
@@ -19,7 +21,7 @@ exports.handler = async (event, context) => {
     'Access-Control-Allow-Credentials': 'true'
   };
 
-  // 1. Handle preflight CORS request
+  // Handle preflight CORS request
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -39,7 +41,7 @@ exports.handler = async (event, context) => {
   try {
     const data = JSON.parse(event.body || '{}');
 
-    // 2. Anti-spam Honeypot Check
+    // Anti-spam Honeypot Check
     const honeypots = [
       'website', 'company', 'message_honeypot', 'subject_honeypot', 
       'title', 'description', 'feedback', 'notes', 'details', 'remarks', 'comments'
@@ -48,14 +50,13 @@ exports.handler = async (event, context) => {
       if (data[hp] && data[hp].trim() !== '') {
         console.warn(`[Anti-Spam] Honeypot field "${hp}" triggered. Dropping submission.`);
         return {
-          statusCode: 200, // Return 200 to trick the bot
+          statusCode: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           body: JSON.stringify({ success: true, message: 'Submission received successfully' })
         };
       }
     }
 
-    // 3. Validation & Sanitization
     const name = (data.name || '').trim();
     const email = (data.email || '').trim();
     const message = (data.message || '').trim();
@@ -81,7 +82,6 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // 4. Check Configured Environment Secrets (Strict configuration - fail closed)
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const resendApiKey = process.env.RESEND_API_KEY;
@@ -97,7 +97,6 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // 5. Store Submission in Supabase using native fetch REST API
     const supabaseResponse = await fetch(`${supabaseUrl}/rest/v1/contact_submissions`, {
       method: 'POST',
       headers: {
@@ -124,20 +123,13 @@ exports.handler = async (event, context) => {
       throw new Error('Failed to record submission in Supabase.');
     }
 
-    // 6. Send Email Notification via Resend REST API (if configured)
     if (resendApiKey && notificationEmail) {
       const emailHtml = `
         <div style="font-family: 'Geist', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; color: #1a1a1a;">
           <h2 style="color: #0D0D0D; border-bottom: 2px solid #0D0D0D; padding-bottom: 10px; margin-top: 0;">New Lead Received!</h2>
           <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-            <tr>
-              <td style="padding: 8px 0; font-weight: bold; width: 120px;">Name:</td>
-              <td style="padding: 8px 0;">${escapeHtml(name)}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0; font-weight: bold;">Email:</td>
-              <td style="padding: 8px 0;"><a href="mailto:${email}" style="color: #0066cc;">${escapeHtml(email)}</a></td>
-            </tr>
+            <tr><td style="padding: 8px 0; font-weight: bold; width: 120px;">Name:</td><td style="padding: 8px 0;">${escapeHtml(name)}</td></tr>
+            <tr><td style="padding: 8px 0; font-weight: bold;">Email:</td><td style="padding: 8px 0;"><a href="mailto:${email}" style="color: #0066cc;">${escapeHtml(email)}</a></td></tr>
             ${location ? `<tr><td style="padding: 8px 0; font-weight: bold;">Location:</td><td style="padding: 8px 0;">${escapeHtml(location)}</td></tr>` : ''}
             ${subject ? `<tr><td style="padding: 8px 0; font-weight: bold;">Subject:</td><td style="padding: 8px 0;">${escapeHtml(subject)}</td></tr>` : ''}
             ${serviceType ? `<tr><td style="padding: 8px 0; font-weight: bold;">Interest:</td><td style="padding: 8px 0;">${escapeHtml(serviceType)}</td></tr>` : ''}
@@ -146,9 +138,6 @@ exports.handler = async (event, context) => {
           <hr style="border: 0; border-top: 1px solid #e0e0e0; margin: 20px 0;" />
           <h3 style="color: #0D0D0D; margin-bottom: 10px;">Message Detail:</h3>
           <div style="background: #f9f9f9; padding: 15px; border-radius: 6px; white-space: pre-wrap; line-height: 1.5; color: #444;">${escapeHtml(message)}</div>
-          <div style="font-size: 0.8em; color: #777; margin-top: 25px; text-align: center;">
-            Sent from AmpletechAI Website Integration.
-          </div>
         </div>
       `;
 
@@ -169,10 +158,7 @@ exports.handler = async (event, context) => {
 
     return {
       statusCode: 200,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json'
-      },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       body: JSON.stringify({ success: true, message: 'Inquiry submitted successfully!' })
     };
 

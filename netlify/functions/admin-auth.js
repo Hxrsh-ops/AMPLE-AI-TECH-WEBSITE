@@ -5,7 +5,9 @@ exports.handler = async (event, context) => {
   const origin = event.headers.origin || event.headers.Origin || '';
   const allowedOrigins = [
     /^http:\/\/localhost(:\d+)?$/,
-    /^https:\/\/([a-zA-Z0-9-]+\.)?netlify\.app$/
+    /^https:\/\/([a-zA-Z0-9-]+\.)?netlify\.app$/,
+    /^https:\/\/ampletechai\.com$/,
+    /^https:\/\/www\.ampletechai\.com$/
   ];
   let corsOrigin = '';
   if (allowedOrigins.some(regex => regex.test(origin))) {

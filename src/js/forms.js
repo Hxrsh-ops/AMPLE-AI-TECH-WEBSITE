@@ -70,26 +70,22 @@ function setupFormListeners() {
       if (isContactForm) {
         endpoint = '/api/submit-contact';
         
-        // Match specific form fields securely
-        // Homepage form double-Name input check
-        const textInputs = form.querySelectorAll('input[type="text"][name="Name"]');
-        const emailInputs = form.querySelectorAll('input[type="email"][name="Name"]');
-        
-        if (textInputs.length && emailInputs.length) {
-          // Double name inputs (homepage)
-          formattedPayload.name = textInputs[0].value;
-          formattedPayload.email = emailInputs[0].value;
-        } else {
-          // Standard contact page form mapping
-          formattedPayload.name = payload['Name'] || '';
-          formattedPayload.email = payload['Email'] || '';
-        }
+        // Extract inputs using general element selectors rather than depending on name-clashing attributes
+        const nameInput = form.querySelector('input[name="Name"]');
+        const emailInput = form.querySelector('input[type="email"]');
+        const messageInput = form.querySelector('textarea');
 
-        formattedPayload.message = form.querySelector('textarea[name="Message"]')?.value || '';
-        formattedPayload.location = payload['Location'] || '';
-        formattedPayload.subject = payload['Subject'] || '';
+        formattedPayload.name = nameInput ? nameInput.value.trim() : '';
+        formattedPayload.email = emailInput ? emailInput.value.trim() : '';
+        formattedPayload.message = messageInput ? messageInput.value.trim() : '';
         
+        // Match location, subject, and radio type selections (optional fields)
+        const locationInput = form.querySelector('input[name="Location"]');
+        const subjectInput = form.querySelector('input[name="Subject"]');
         const selectedRadio = form.querySelector('input[type="radio"][name="Radio"]:checked');
+
+        formattedPayload.location = locationInput ? locationInput.value.trim() : '';
+        formattedPayload.subject = subjectInput ? subjectInput.value.trim() : '';
         formattedPayload.serviceType = selectedRadio ? selectedRadio.value : '';
 
         // Auto-tag lead with URL plan parameters if available (e.g. ?plan=starter)
@@ -98,7 +94,8 @@ function setupFormListeners() {
 
       } else {
         endpoint = '/api/subscribe-newsletter';
-        formattedPayload.email = payload['Email Address'] || '';
+        const emailInput = form.querySelector('input[name="Email Address"]');
+        formattedPayload.email = emailInput ? emailInput.value.trim() : '';
       }
 
       // Map any honeypot anti-spam fields
