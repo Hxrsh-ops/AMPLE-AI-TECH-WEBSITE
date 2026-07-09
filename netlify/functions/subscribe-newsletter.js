@@ -1,4 +1,8 @@
 exports.handler = async (event, context) => {
+  console.log('[Debug] subscribe-newsletter function entered.');
+  console.log('[Debug] HTTP Method:', event.httpMethod);
+  console.log('[Debug] Native fetch availability:', typeof fetch);
+
   // CORS Origin check
   const origin = event.headers.origin || event.headers.Origin || '';
   const allowedOrigins = [
@@ -11,6 +15,7 @@ exports.handler = async (event, context) => {
   if (allowedOrigins.some(regex => regex.test(origin))) {
     corsOrigin = origin;
   }
+  console.log('[Debug] Request Origin:', origin, '-> CORS allowed origin set to:', corsOrigin || 'null');
 
   const corsHeaders = {
     'Access-Control-Allow-Origin': corsOrigin || 'null',
@@ -21,6 +26,7 @@ exports.handler = async (event, context) => {
 
   // Handle preflight CORS request
   if (event.httpMethod === 'OPTIONS') {
+    console.log('[Debug] OPTIONS preflight request completed.');
     return {
       statusCode: 200,
       headers: corsHeaders,
@@ -29,6 +35,7 @@ exports.handler = async (event, context) => {
   }
 
   if (event.httpMethod !== 'POST') {
+    console.log('[Debug] Rejecting method:', event.httpMethod);
     return {
       statusCode: 405,
       headers: corsHeaders,
@@ -37,7 +44,9 @@ exports.handler = async (event, context) => {
   }
 
   try {
+    console.log('[Debug] Parsing request body...');
     const data = JSON.parse(event.body || '{}');
+    console.log('[Debug] Parsed body keys:', Object.keys(data));
 
     // Anti-spam Honeypot Check
     const honeypots = [
@@ -54,9 +63,13 @@ exports.handler = async (event, context) => {
         };
       }
     }
+    console.log('[Debug] Anti-spam checks passed.');
 
     const email = (data.email || '').trim();
+    console.log('[Debug] Fields extracted:', { email: !!email });
+
     if (!email) {
+      console.log('[Debug] Validation failed: missing Email.');
       return {
         statusCode: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -66,18 +79,28 @@ exports.handler = async (event, context) => {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      console.log('[Debug] Validation failed: invalid email format.');
       return {
         statusCode: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         body: JSON.stringify({ error: 'Please provide a valid email address.' })
       };
     }
+    console.log('[Debug] Validation passed.');
 
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const resendApiKey = process.env.RESEND_API_KEY;
     const senderEmail = process.env.SENDER_EMAIL || 'onboarding@resend.dev';
     const notificationEmail = process.env.NOTIFICATION_EMAIL;
+
+    console.log('[Debug] Environment variables presence check:', {
+      SUPABASE_URL: !!supabaseUrl,
+      SUPABASE_SERVICE_ROLE_KEY: !!supabaseServiceKey,
+      RESEND_API_KEY: !!resendApiKey,
+      SENDER_EMAIL: !!process.env.SENDER_EMAIL,
+      NOTIFICATION_EMAIL: !!notificationEmail
+    });
 
     if (!supabaseUrl || !supabaseServiceKey) {
       console.error('[Error] Supabase credentials not set.');
@@ -88,6 +111,8 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // 5. Record subscription in Supabase
+    console.log('[Debug] Sending POST request to Supabase rest api...');
     const supabaseResponse = await fetch(`${supabaseUrl}/rest/v1/newsletter_subscribers`, {
       method: 'POST',
       headers: {
@@ -99,22 +124,27 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({ email })
     });
 
+    console.log('[Debug] Supabase response HTTP Status:', supabaseResponse.status);
+
     if (!supabaseResponse.ok) {
       const errorText = await supabaseResponse.text();
       // Handle unique constraint violation (duplicate email) gracefully
       if (supabaseResponse.status === 409 || errorText.includes('23505') || errorText.includes('already exists')) {
+        console.log('[Debug] Duplicate subscription detected. Handling gracefully.');
         return {
           statusCode: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           body: JSON.stringify({ success: true, message: 'You are already subscribed to our newsletter!' })
         };
       }
-      console.error('[Supabase Error]', errorText);
-      throw new Error('Failed to save email to newsletter_subscribers.');
+      console.error('[Error] Supabase returned non-OK status:', supabaseResponse.status, errorText);
+      throw new Error(`Supabase error: ${supabaseResponse.status} - ${errorText}`);
     }
+    console.log('[Debug] Supabase subscriber record inserted successfully.');
 
-    // A. Send Welcome Email to Subscriber
+    // 6. Send Welcome Email via Resend
     if (resendApiKey) {
+      console.log('[Debug] Preparing welcome email via Resend...');
       const welcomeHtml = `
         <div style="font-family: 'Geist', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 25px; border: 1px solid #e8e8e8; border-radius: 12px; color: #1a1a1a; background-color: #ffffff;">
           <div style="text-align: center; margin-bottom: 20px;">
@@ -126,7 +156,8 @@ exports.handler = async (event, context) => {
         </div>
       `;
 
-      await fetch('https://api.resend.com/emails', {
+      console.log('[Debug] Sending POST request to Resend api (welcome email)...');
+      const welcomeResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${resendApiKey}`,
@@ -139,10 +170,19 @@ exports.handler = async (event, context) => {
           html: welcomeHtml
         })
       });
+
+      console.log('[Debug] Resend response HTTP Status (welcome email):', welcomeResponse.status);
+      if (!welcomeResponse.ok) {
+        const errorText = await welcomeResponse.text();
+        console.error('[Error] Resend returned non-OK status (welcome email):', welcomeResponse.status, errorText);
+      } else {
+        console.log('[Debug] Welcome email sent successfully.');
+      }
     }
 
-    // B. Send Signup Notification to Owner
+    // 7. Send Signup Notification to Owner
     if (resendApiKey && notificationEmail) {
+      console.log('[Debug] Preparing owner signup notification via Resend...');
       const notificationHtml = `
         <div style="font-family: 'Geist', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; color: #1a1a1a;">
           <h2 style="color: #0D0D0D; border-bottom: 2px solid #0D0D0D; padding-bottom: 10px; margin-top: 0;">New Newsletter Subscriber!</h2>
@@ -150,13 +190,11 @@ exports.handler = async (event, context) => {
           <p style="font-size: 18px; font-weight: bold; color: #0D0D0D;">
             <a href="mailto:${email}" style="color: #0066cc; text-decoration: none;">${escapeHtml(email)}</a>
           </p>
-          <div style="font-size: 0.8em; color: #777; margin-top: 25px; text-align: center;">
-            Sent from AmpletechAI Website Integration.
-          </div>
         </div>
       `;
 
-      await fetch('https://api.resend.com/emails', {
+      console.log('[Debug] Sending POST request to Resend api (owner notification)...');
+      const notificationResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${resendApiKey}`,
@@ -169,8 +207,17 @@ exports.handler = async (event, context) => {
           html: notificationHtml
         })
       });
+
+      console.log('[Debug] Resend response HTTP Status (owner notification):', notificationResponse.status);
+      if (!notificationResponse.ok) {
+        const errorText = await notificationResponse.text();
+        console.error('[Error] Resend returned non-OK status (owner notification):', notificationResponse.status, errorText);
+      } else {
+        console.log('[Debug] Owner notification email sent successfully.');
+      }
     }
 
+    console.log('[Debug] Function execution completed successfully.');
     return {
       statusCode: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -178,7 +225,10 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('[API Error]', error);
+    console.error('[Error] subscribe-newsletter catch block triggered. Details:');
+    console.error('  Message:', error.message);
+    console.error('  Stack:', error.stack || 'No stack trace available.');
+    
     return {
       statusCode: 500,
       headers: corsHeaders,
