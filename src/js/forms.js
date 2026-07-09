@@ -111,6 +111,19 @@ function setupFormListeners() {
         }
       });
 
+      // CENTRALIZED DEBUG MAP AUDIT LOG
+      const formDebugAuditMap = {
+        detectedFormType: isContactForm ? 'Contact Form' : 'Newsletter Form',
+        endpoint: endpoint,
+        payloadKeys: Object.keys(formattedPayload),
+        classNames: form.className || 'none',
+        hasNameInput: !!form.querySelector('input[name="Name"]'),
+        hasEmailInput: !!form.querySelector('input[type="email"]'),
+        hasMessageInput: !!form.querySelector('textarea'),
+        hasNewsletterEmailInput: !!form.querySelector('input[name="Email Address"]')
+      };
+      console.log('[Form Debug Audit Map]:', formDebugAuditMap);
+
       // Submit data asynchronously
       const response = await fetch(endpoint, {
         method: 'POST',

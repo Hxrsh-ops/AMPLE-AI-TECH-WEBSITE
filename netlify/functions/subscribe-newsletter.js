@@ -111,15 +111,14 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // 5. Record subscription in Supabase
+    // 5. Record subscription in Supabase (Without resolution=ignore-duplicates preference to prevent PostgREST failures)
     console.log('[Debug] Sending POST request to Supabase rest api...');
     const supabaseResponse = await fetch(`${supabaseUrl}/rest/v1/newsletter_subscribers`, {
       method: 'POST',
       headers: {
         'apikey': supabaseServiceKey,
         'Authorization': `Bearer ${supabaseServiceKey}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'resolution=ignore-duplicates'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ email })
     });
@@ -232,7 +231,7 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 500,
       headers: corsHeaders,
-      body: JSON.stringify({ error: 'A server error occurred. Please try again later.' })
+      body: JSON.stringify({ error: `Server error: ${error.message}` })
     };
   }
 };

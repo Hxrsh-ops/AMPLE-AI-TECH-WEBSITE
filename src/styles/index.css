@@ -3775,3 +3775,41 @@ a:visited .table-redirect-arrow-wrapper svg {
   color: #0D0D0D !important;
   fill: #0D0D0D !important;
 }
+
+/* Newsletter Footer Submit Arrow Alignment Fix */
+.framer-s679yk-container {
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  right: 12px !important;
+  height: 36px !important;
+  width: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 10 !important;
+}
+
+.framer-s679yk-container button[type="submit"] {
+  width: 100% !important;
+  height: 100% !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.framer-s679yk-container button[type="submit"] div,
+.framer-s679yk-container button[type="submit"] img {
+  width: 11px !important;
+  height: 11px !important;
+  display: block !important;
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+}
+
