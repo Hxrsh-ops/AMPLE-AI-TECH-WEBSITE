@@ -5,7 +5,6 @@ exports.handler = async (event, context) => {
   const origin = event.headers.origin || event.headers.Origin || '';
   const allowedOrigins = [
     /^http:\/\/localhost(:\d+)?$/,
-    /^https:\/\/([a-zA-Z0-9-]+\.)?netlify\.app$/,
     /^https:\/\/ampletechai\.com$/,
     /^https:\/\/www\.ampletechai\.com$/
   ];
@@ -66,6 +65,15 @@ exports.handler = async (event, context) => {
     const serviceType = sanitizeInput(data.serviceType);
     const plan = sanitizeInput(data.plan);
 
+    // Reject oversized payloads (prevent denial of service)
+    if (JSON.stringify(data).length > 65536) {
+      return {
+        statusCode: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Payload too large.' })
+      };
+    }
+
     if (!name || !email || !message) {
       return {
         statusCode: 400,
@@ -84,13 +92,13 @@ exports.handler = async (event, context) => {
     }
 
     // Environment Configuration Variables (Fail hard if missing)
-    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseUrlRaw = process.env.SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const resendApiKey = process.env.RESEND_API_KEY;
     const senderEmail = process.env.SENDER_EMAIL;
     const notificationEmail = process.env.NOTIFICATION_EMAIL;
 
-    if (!supabaseUrl || !supabaseServiceKey || !resendApiKey || !senderEmail || !notificationEmail) {
+    if (!supabaseUrlRaw || !supabaseServiceKey || !resendApiKey || !senderEmail || !notificationEmail) {
       console.error('[Error] Serverless submit-contact endpoint missing database/email configurations.');
       return {
         statusCode: 500,
@@ -99,25 +107,27 @@ exports.handler = async (event, context) => {
       };
     }
 
+    const supabaseUrl = normalizeSupabaseUrl(supabaseUrlRaw);
+
     // Fetch Client IP for rate-limiting
     const ip = event.headers['x-nf-client-connection-ip'] || 
                event.headers['client-ip'] || 
                event.headers['x-forwarded-for'] || 
                'unknown-ip';
 
-    // Enforce Rate Limiting (max 5 submissions per minute)
+    // Enforce Rate Limiting (max 5 submissions per minute) - FAIL CLOSED ON DB ERROR
     const withinRateLimit = await checkRateLimit(supabaseUrl, supabaseServiceKey, ip, 'submit-contact');
     if (!withinRateLimit) {
-      console.warn(`[Rate Limit Exceeded] IP ${ip} blocked on submit-contact.`);
+      console.warn(`[Rate Limit Blocked or Error] IP ${ip} blocked on submit-contact.`);
       return {
         statusCode: 429,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Too many submissions. Please wait a minute and try again.' })
+        body: JSON.stringify({ error: 'Too many submissions or service temporarily unavailable. Please try again later.' })
       };
     }
 
     // Insert lead into Supabase
-    const supabaseResponse = await fetch(`${supabaseUrl}/rest/v1/contact_submissions`, {
+    const supabaseResponse = await fetch(`${supabaseUrl}/contact_submissions`, {
       method: 'POST',
       headers: {
         'apikey': supabaseServiceKey,
@@ -177,7 +187,7 @@ exports.handler = async (event, context) => {
 
     if (!emailResponse.ok) {
       const errorText = await emailResponse.text();
-      console.error('[Resend Error]', errorResponse.status, errorText);
+      console.error('[Resend Error]', emailResponse.status, errorText);
     }
 
     return {
@@ -212,19 +222,33 @@ function escapeHtml(unsafe) {
     .replace(/'/g, "&#039;");
 }
 
+function normalizeSupabaseUrl(rawUrl) {
+  let baseUrl = (rawUrl || '').trim();
+  if (baseUrl.endsWith('/')) {
+    baseUrl = baseUrl.slice(0, -1);
+  }
+  if (baseUrl.endsWith('/rest/v1')) {
+    baseUrl = baseUrl.slice(0, -8);
+  }
+  return `${baseUrl}/rest/v1`;
+}
+
 async function checkRateLimit(supabaseUrl, supabaseServiceKey, ip, endpoint) {
   const key = `${ip}:${endpoint}`;
   const now = new Date();
   
   try {
-    const res = await fetch(`${supabaseUrl}/rest/v1/rate_limits?key=eq.${encodeURIComponent(key)}`, {
+    const res = await fetch(`${supabaseUrl}/rate_limits?key=eq.${encodeURIComponent(key)}`, {
       headers: {
         'apikey': supabaseServiceKey,
         'Authorization': `Bearer ${supabaseServiceKey}`
       }
     });
     
-    if (!res.ok) return true; // Fail open
+    if (!res.ok) {
+      console.error('[Rate Limit Error] Database query returned non-OK status.');
+      return false; // Fail closed
+    }
     
     const records = await res.json();
     if (records && records.length > 0) {
@@ -233,10 +257,10 @@ async function checkRateLimit(supabaseUrl, supabaseServiceKey, ip, endpoint) {
       
       if (now - lastRequest < 60 * 1000) {
         if (record.hits >= 5) {
-          return false;
+          return false; // Limit exceeded
         }
         
-        await fetch(`${supabaseUrl}/rest/v1/rate_limits?key=eq.${encodeURIComponent(key)}`, {
+        const updateRes = await fetch(`${supabaseUrl}/rate_limits?key=eq.${encodeURIComponent(key)}`, {
           method: 'PATCH',
           headers: {
             'apikey': supabaseServiceKey,
@@ -245,8 +269,9 @@ async function checkRateLimit(supabaseUrl, supabaseServiceKey, ip, endpoint) {
           },
           body: JSON.stringify({ hits: record.hits + 1 })
         });
+        if (!updateRes.ok) return false; // Fail closed
       } else {
-        await fetch(`${supabaseUrl}/rest/v1/rate_limits?key=eq.${encodeURIComponent(key)}`, {
+        const resetRes = await fetch(`${supabaseUrl}/rate_limits?key=eq.${encodeURIComponent(key)}`, {
           method: 'PATCH',
           headers: {
             'apikey': supabaseServiceKey,
@@ -255,9 +280,10 @@ async function checkRateLimit(supabaseUrl, supabaseServiceKey, ip, endpoint) {
           },
           body: JSON.stringify({ hits: 1, last_request: now.toISOString() })
         });
+        if (!resetRes.ok) return false; // Fail closed
       }
     } else {
-      await fetch(`${supabaseUrl}/rest/v1/rate_limits`, {
+      const createRes = await fetch(`${supabaseUrl}/rate_limits`, {
         method: 'POST',
         headers: {
           'apikey': supabaseServiceKey,
@@ -266,9 +292,11 @@ async function checkRateLimit(supabaseUrl, supabaseServiceKey, ip, endpoint) {
         },
         body: JSON.stringify({ key, hits: 1, last_request: now.toISOString() })
       });
+      if (!createRes.ok) return false; // Fail closed
     }
   } catch (err) {
     console.error('[Rate Limit Exception]', err.message);
+    return false; // Fail closed
   }
   
   return true;

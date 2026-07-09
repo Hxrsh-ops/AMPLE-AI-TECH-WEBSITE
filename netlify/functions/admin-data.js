@@ -5,7 +5,6 @@ exports.handler = async (event, context) => {
   const origin = event.headers.origin || event.headers.Origin || '';
   const allowedOrigins = [
     /^http:\/\/localhost(:\d+)?$/,
-    /^https:\/\/([a-zA-Z0-9-]+\.)?netlify\.app$/,
     /^https:\/\/ampletechai\.com$/,
     /^https:\/\/www\.ampletechai\.com$/
   ];
@@ -65,7 +64,7 @@ exports.handler = async (event, context) => {
       .update(serializedPayload)
       .digest('base64url');
 
-    if (signature !== expectedSignature) {
+    if (!safeCompare(signature, expectedSignature)) {
       return {
         statusCode: 401,
         headers: corsHeaders,
@@ -84,16 +83,18 @@ exports.handler = async (event, context) => {
     }
 
     // 2. Verified Admin Operations
-    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseUrlRaw = process.env.SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    if (!supabaseUrl || !supabaseServiceKey) {
+    if (!supabaseUrlRaw || !supabaseServiceKey) {
       return {
         statusCode: 500,
         headers: corsHeaders,
         body: JSON.stringify({ error: 'Server database configuration missing.' })
       };
     }
+
+    const supabaseUrl = normalizeSupabaseUrl(supabaseUrlRaw);
 
     // A. PATCH Request: Update lead status
     if (event.httpMethod === 'PATCH') {
@@ -119,7 +120,7 @@ exports.handler = async (event, context) => {
         };
       }
 
-      const patchResponse = await fetch(`${supabaseUrl}/rest/v1/contact_submissions?id=eq.${encodeURIComponent(sanitizedId)}`, {
+      const patchResponse = await fetch(`${supabaseUrl}/contact_submissions?id=eq.${encodeURIComponent(sanitizedId)}`, {
         method: 'PATCH',
         headers: {
           'apikey': supabaseServiceKey,
@@ -145,7 +146,7 @@ exports.handler = async (event, context) => {
     // B. GET Request: Fetch all data
     if (event.httpMethod === 'GET') {
       // Fetch submissions
-      const submissionsResponse = await fetch(`${supabaseUrl}/rest/v1/contact_submissions?select=*&order=created_at.desc`, {
+      const submissionsResponse = await fetch(`${supabaseUrl}/contact_submissions?select=*&order=created_at.desc`, {
         headers: {
           'apikey': supabaseServiceKey,
           'Authorization': `Bearer ${supabaseServiceKey}`
@@ -160,7 +161,7 @@ exports.handler = async (event, context) => {
       const submissions = await submissionsResponse.json();
 
       // Fetch newsletter subscribers
-      const subscribersResponse = await fetch(`${supabaseUrl}/rest/v1/newsletter_subscribers?select=*&order=created_at.desc`, {
+      const subscribersResponse = await fetch(`${supabaseUrl}/newsletter_subscribers?select=*&order=created_at.desc`, {
         headers: {
           'apikey': supabaseServiceKey,
           'Authorization': `Bearer ${supabaseServiceKey}`
@@ -199,3 +200,22 @@ exports.handler = async (event, context) => {
     };
   }
 };
+
+function normalizeSupabaseUrl(rawUrl) {
+  let baseUrl = (rawUrl || '').trim();
+  if (baseUrl.endsWith('/')) {
+    baseUrl = baseUrl.slice(0, -1);
+  }
+  if (baseUrl.endsWith('/rest/v1')) {
+    baseUrl = baseUrl.slice(0, -8);
+  }
+  return `${baseUrl}/rest/v1`;
+}
+
+function safeCompare(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}

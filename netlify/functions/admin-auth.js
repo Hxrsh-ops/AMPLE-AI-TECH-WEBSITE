@@ -1,11 +1,11 @@
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 
 exports.handler = async (event, context) => {
   // CORS Origin check
   const origin = event.headers.origin || event.headers.Origin || '';
   const allowedOrigins = [
     /^http:\/\/localhost(:\d+)?$/,
-    /^https:\/\/([a-zA-Z0-9-]+\.)?netlify\.app$/,
     /^https:\/\/ampletechai\.com$/,
     /^https:\/\/www\.ampletechai\.com$/
   ];
@@ -44,10 +44,10 @@ exports.handler = async (event, context) => {
     const adminUser = process.env.ADMIN_USERNAME;
     const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
     const jwtSecret = process.env.JWT_SECRET;
-    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseUrlRaw = process.env.SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    if (!adminUser || !adminPasswordHash || !jwtSecret || !supabaseUrl || !supabaseServiceKey) {
+    if (!adminUser || !adminPasswordHash || !jwtSecret || !supabaseUrlRaw || !supabaseServiceKey) {
       console.error('[Admin Auth Error] Server environment configuration variables missing.');
       return {
         statusCode: 500,
@@ -56,6 +56,8 @@ exports.handler = async (event, context) => {
       };
     }
 
+    const supabaseUrl = normalizeSupabaseUrl(supabaseUrlRaw);
+
     // 2. Fetch Client IP for lockout throttling
     const ip = event.headers['x-nf-client-connection-ip'] || 
                event.headers['client-ip'] || 
@@ -63,20 +65,25 @@ exports.handler = async (event, context) => {
                'unknown-ip';
 
     // 3. Lockout check from Supabase table
-    const ipQueryRes = await fetch(`${supabaseUrl}/rest/v1/admin_login_attempts?ip=eq.${encodeURIComponent(ip)}`, {
+    const ipQueryRes = await fetch(`${supabaseUrl}/admin_login_attempts?ip=eq.${encodeURIComponent(ip)}`, {
       headers: {
         'apikey': supabaseServiceKey,
         'Authorization': `Bearer ${supabaseServiceKey}`
       }
     });
 
-    let attemptRecord = null;
-    if (ipQueryRes.ok) {
-      const records = await ipQueryRes.json();
-      if (records && records.length > 0) {
-        attemptRecord = records[0];
-      }
+    // Check rate limit database call success (FAIL CLOSED)
+    if (!ipQueryRes.ok) {
+      console.error('[Admin Auth Error] Lockout query failed.');
+      return {
+        statusCode: 500,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: 'Service temporarily unavailable. Please try again later.' })
+      };
     }
+
+    const records = await ipQueryRes.json();
+    let attemptRecord = (records && records.length > 0) ? records[0] : null;
 
     const now = new Date();
     if (attemptRecord && attemptRecord.locked_until) {
@@ -92,8 +99,9 @@ exports.handler = async (event, context) => {
     }
 
     // 4. Verify Credentials
-    const hashedPassword = crypto.createHash('sha256').update(password || '').digest('hex');
-    const isMatched = (username === adminUser) && (hashedPassword === adminPasswordHash);
+    const usernameMatched = safeCompare(username, adminUser);
+    const passwordMatched = await bcrypt.compare(password || '', adminPasswordHash);
+    const isMatched = usernameMatched && passwordMatched;
 
     if (!isMatched) {
       // Record failed attempt
@@ -108,7 +116,7 @@ exports.handler = async (event, context) => {
         }
       }
 
-      await fetch(`${supabaseUrl}/rest/v1/admin_login_attempts`, {
+      const updateAttemptRes = await fetch(`${supabaseUrl}/admin_login_attempts?on_conflict=ip`, {
         method: 'POST',
         headers: {
           'apikey': supabaseServiceKey,
@@ -123,6 +131,10 @@ exports.handler = async (event, context) => {
         })
       });
 
+      if (!updateAttemptRes.ok) {
+        console.error('[Admin Auth Error] Failed to update login attempt count.');
+      }
+
       return {
         statusCode: 401,
         headers: corsHeaders,
@@ -132,7 +144,7 @@ exports.handler = async (event, context) => {
 
     // 5. Successful login: Clear attempts
     if (attemptRecord) {
-      await fetch(`${supabaseUrl}/rest/v1/admin_login_attempts?ip=eq.${encodeURIComponent(ip)}`, {
+      await fetch(`${supabaseUrl}/admin_login_attempts?ip=eq.${encodeURIComponent(ip)}`, {
         method: 'DELETE',
         headers: {
           'apikey': supabaseServiceKey,
@@ -171,3 +183,22 @@ exports.handler = async (event, context) => {
     };
   }
 };
+
+function normalizeSupabaseUrl(rawUrl) {
+  let baseUrl = (rawUrl || '').trim();
+  if (baseUrl.endsWith('/')) {
+    baseUrl = baseUrl.slice(0, -1);
+  }
+  if (baseUrl.endsWith('/rest/v1')) {
+    baseUrl = baseUrl.slice(0, -8);
+  }
+  return `${baseUrl}/rest/v1`;
+}
+
+function safeCompare(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
