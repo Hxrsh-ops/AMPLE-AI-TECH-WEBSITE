@@ -62,3 +62,19 @@ ON admin_login_attempts
 FOR ALL
 USING (false)
 WITH CHECK (false);
+
+-- 4. Create rate limits tracking table for form submissions rate limiting
+CREATE TABLE IF NOT EXISTS rate_limits (
+    key TEXT PRIMARY KEY,
+    hits INT NOT NULL DEFAULT 1,
+    last_request TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE rate_limits ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Deny public anon access to rate limits"
+ON rate_limits
+FOR ALL
+USING (false)
+WITH CHECK (false);
+

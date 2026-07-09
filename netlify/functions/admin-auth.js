@@ -40,7 +40,7 @@ exports.handler = async (event, context) => {
   try {
     const { username, password } = JSON.parse(event.body || '{}');
 
-    // 1. Enforce strict configuration - fail closed on missing env vars
+    // 1. Enforce strict configuration - fail closed on missing env vars (NO fallbacks!)
     const adminUser = process.env.ADMIN_USERNAME;
     const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
     const jwtSecret = process.env.JWT_SECRET;
@@ -48,7 +48,7 @@ exports.handler = async (event, context) => {
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!adminUser || !adminPasswordHash || !jwtSecret || !supabaseUrl || !supabaseServiceKey) {
-      console.error('[Admin Auth Error] Missing required server environment configurations.');
+      console.error('[Admin Auth Error] Server environment configuration variables missing.');
       return {
         statusCode: 500,
         headers: corsHeaders,
@@ -141,8 +141,8 @@ exports.handler = async (event, context) => {
       });
     }
 
-    // 6. Generate lightweight JWT-like token (HMAC-SHA256 signed)
-    const exp = Date.now() + 2 * 60 * 60 * 1000; // 2 hours expiry
+    // 6. Generate lightweight signed token (15 minutes expiry)
+    const exp = Date.now() + 15 * 60 * 1000;
     const payload = { username, exp };
     const serializedPayload = Buffer.from(JSON.stringify(payload)).toString('base64');
     const signature = crypto
@@ -163,7 +163,7 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('[Admin Auth Error]', error);
+    console.error('[Admin Auth Error]', error.message);
     return {
       statusCode: 500,
       headers: corsHeaders,

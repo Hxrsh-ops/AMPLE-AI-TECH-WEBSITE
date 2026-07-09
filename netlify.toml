@@ -20,4 +20,4 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self' https:;"
+    Content-Security-Policy = "default-src 'self' https: 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self' https:; frame-src https://cal.com https://*.cal.com; object-src 'none'; base-uri 'self'; form-action 'self';"

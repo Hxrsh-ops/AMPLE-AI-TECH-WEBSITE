@@ -106,14 +106,27 @@ exports.handler = async (event, context) => {
         };
       }
 
-      const patchResponse = await fetch(`${supabaseUrl}/rest/v1/contact_submissions?id=eq.${encodeURIComponent(id)}`, {
+      // Sanitize input variables
+      const sanitizedId = String(id).replace(/[^a-zA-Z0-9-]/g, '');
+      const sanitizedStatus = String(status).trim();
+      const validStatuses = ['unread', 'in_progress', 'resolved'];
+      
+      if (!validStatuses.includes(sanitizedStatus)) {
+        return {
+          statusCode: 400,
+          headers: corsHeaders,
+          body: JSON.stringify({ error: 'Invalid status value.' })
+        };
+      }
+
+      const patchResponse = await fetch(`${supabaseUrl}/rest/v1/contact_submissions?id=eq.${encodeURIComponent(sanitizedId)}`, {
         method: 'PATCH',
         headers: {
           'apikey': supabaseServiceKey,
           'Authorization': `Bearer ${supabaseServiceKey}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status: sanitizedStatus })
       });
 
       if (!patchResponse.ok) {
@@ -178,7 +191,7 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('[Admin Data API Error]', error);
+    console.error('[Admin Data API Error]', error.message);
     return {
       statusCode: 500,
       headers: corsHeaders,
