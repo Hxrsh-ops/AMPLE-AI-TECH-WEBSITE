@@ -1,3 +1,4 @@
+import './forms.js';
 
 if (history.scrollRestoration) {
     history.scrollRestoration = 'manual';
