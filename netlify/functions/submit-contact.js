@@ -1,15 +1,29 @@
 const crypto = require('crypto');
 
 exports.handler = async (event, context) => {
+  // CORS Origin check
+  const origin = event.headers.origin || event.headers.Origin || '';
+  const allowedOrigins = [
+    /^http:\/\/localhost(:\d+)?$/,
+    /^https:\/\/([a-zA-Z0-9-]+\.)?netlify\.app$/
+  ];
+  let corsOrigin = '';
+  if (allowedOrigins.some(regex => regex.test(origin))) {
+    corsOrigin = origin;
+  }
+
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': corsOrigin || 'null',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Credentials': 'true'
+  };
+
   // 1. Handle preflight CORS request
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-      },
+      headers: corsHeaders,
       body: ''
     };
   }
@@ -17,6 +31,7 @@ exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
+      headers: corsHeaders,
       body: JSON.stringify({ error: 'Method Not Allowed' })
     };
   }
@@ -25,7 +40,6 @@ exports.handler = async (event, context) => {
     const data = JSON.parse(event.body || '{}');
 
     // 2. Anti-spam Honeypot Check
-    // Framer forms contain hidden input fields. If any of these are filled, it's a bot submission.
     const honeypots = [
       'website', 'company', 'message_honeypot', 'subject_honeypot', 
       'title', 'description', 'feedback', 'notes', 'details', 'remarks', 'comments'
@@ -34,8 +48,8 @@ exports.handler = async (event, context) => {
       if (data[hp] && data[hp].trim() !== '') {
         console.warn(`[Anti-Spam] Honeypot field "${hp}" triggered. Dropping submission.`);
         return {
-          statusCode: 200, // Return 200 to trick the bot into thinking it succeeded
-          headers: { 'Content-Type': 'application/json' },
+          statusCode: 200, // Return 200 to trick the bot
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           body: JSON.stringify({ success: true, message: 'Submission received successfully' })
         };
       }
@@ -53,7 +67,7 @@ exports.handler = async (event, context) => {
     if (!name || !email || !message) {
       return {
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         body: JSON.stringify({ error: 'Name, Email, and Message are required fields.' })
       };
     }
@@ -62,12 +76,12 @@ exports.handler = async (event, context) => {
     if (!emailRegex.test(email)) {
       return {
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         body: JSON.stringify({ error: 'Please provide a valid email address.' })
       };
     }
 
-    // 4. Check Configured Environment Secrets
+    // 4. Check Configured Environment Secrets (Strict configuration - fail closed)
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const resendApiKey = process.env.RESEND_API_KEY;
@@ -78,6 +92,7 @@ exports.handler = async (event, context) => {
       console.error('[Error] Supabase credentials are not configured in environment.');
       return {
         statusCode: 500,
+        headers: corsHeaders,
         body: JSON.stringify({ error: 'Internal Database Configuration Error.' })
       };
     }
@@ -155,7 +170,7 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 200,
       headers: {
-        'Access-Control-Allow-Origin': '*',
+        ...corsHeaders,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ success: true, message: 'Inquiry submitted successfully!' })
@@ -165,10 +180,7 @@ exports.handler = async (event, context) => {
     console.error('[API Error]', error);
     return {
       statusCode: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      },
+      headers: corsHeaders,
       body: JSON.stringify({ error: 'A server error occurred. Please try again later.' })
     };
   }

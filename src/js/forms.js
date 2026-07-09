@@ -20,9 +20,9 @@ function setupFormListeners() {
   document.addEventListener('submit', async (e) => {
     const form = e.target;
     
-    // Check if it's a contact or newsletter form
-    const isContactForm = form.classList.contains('framer-1n9v1w8') || form.classList.contains('framer-jyaash');
-    const isNewsletterForm = form.classList.contains('framer-9on65k');
+    // Check form type using robust name-based input selectors to avoid class-name fragility
+    const isNewsletterForm = form.querySelector('input[name="Email Address"]');
+    const isContactForm = form.querySelector('input[name="Name"]') && form.querySelector('textarea[name="Message"]');
     
     if (!isContactForm && !isNewsletterForm) return;
     
@@ -44,7 +44,6 @@ function setupFormListeners() {
         <span class="btn-spinner" style="display:inline-block; width:12px; height:12px; border:2px solid rgba(255,255,255,0.3); border-radius:50%; border-top-color:#fff; animation:spin 0.8s linear infinite; margin-right:5px; vertical-align:middle;"></span>
         Processing...
       `;
-      // Ensure the spinner animation CSS is defined in styles
       if (!document.getElementById('spinner-style-injector')) {
         const style = document.createElement('style');
         style.id = 'spinner-style-injector';
@@ -61,7 +60,6 @@ function setupFormListeners() {
       const formData = new FormData(form);
       const payload = {};
       
-      // Get all standard form parameters and honeypots
       formData.forEach((value, key) => {
         payload[key] = value;
       });
@@ -72,28 +70,27 @@ function setupFormListeners() {
       if (isContactForm) {
         endpoint = '/api/submit-contact';
         
-        // Match specific form variants
-        if (form.classList.contains('framer-1n9v1w8')) {
-          // Homepage form double-Name input mapping
-          // The HTML contains two inputs named "Name": one text (input #0) and one email (input #1)
-          const textInputs = form.querySelectorAll('input[type="text"][name="Name"]');
-          const emailInputs = form.querySelectorAll('input[type="email"][name="Name"]');
-          
-          formattedPayload.name = textInputs.length ? textInputs[0].value : '';
-          formattedPayload.email = emailInputs.length ? emailInputs[0].value : '';
-          formattedPayload.message = form.querySelector('textarea[name="Message"]')?.value || '';
+        // Match specific form fields securely
+        // Homepage form double-Name input check
+        const textInputs = form.querySelectorAll('input[type="text"][name="Name"]');
+        const emailInputs = form.querySelectorAll('input[type="email"][name="Name"]');
+        
+        if (textInputs.length && emailInputs.length) {
+          // Double name inputs (homepage)
+          formattedPayload.name = textInputs[0].value;
+          formattedPayload.email = emailInputs[0].value;
         } else {
-          // Contact page form mapping
+          // Standard contact page form mapping
           formattedPayload.name = payload['Name'] || '';
           formattedPayload.email = payload['Email'] || '';
-          formattedPayload.message = payload['Message'] || '';
-          formattedPayload.location = payload['Location'] || '';
-          formattedPayload.subject = payload['Subject'] || '';
-          
-          // Get selected radio value (Interest)
-          const selectedRadio = form.querySelector('input[type="radio"][name="Radio"]:checked');
-          formattedPayload.serviceType = selectedRadio ? selectedRadio.value : '';
         }
+
+        formattedPayload.message = form.querySelector('textarea[name="Message"]')?.value || '';
+        formattedPayload.location = payload['Location'] || '';
+        formattedPayload.subject = payload['Subject'] || '';
+        
+        const selectedRadio = form.querySelector('input[type="radio"][name="Radio"]:checked');
+        formattedPayload.serviceType = selectedRadio ? selectedRadio.value : '';
 
         // Auto-tag lead with URL plan parameters if available (e.g. ?plan=starter)
         const urlParams = new URLSearchParams(window.location.search);
@@ -110,7 +107,6 @@ function setupFormListeners() {
         'description', 'feedback', 'notes', 'details', 'remarks', 'comments'
       ];
       honeypotKeys.forEach(key => {
-        // If isContactForm, don't override the primary message/subject if they map to honeypot keys
         if (isContactForm && (key === 'message' || key === 'subject')) {
           formattedPayload[`${key}_honeypot`] = payload[key] || '';
         } else {
@@ -139,7 +135,6 @@ function setupFormListeners() {
       console.error('[Form Submit Error]', error);
       showFeedback(form, error.message || 'Connection failed. Please check your internet.', 'error');
     } finally {
-      // Reset loading states
       form.dataset.submitting = 'false';
       if (submitBtn) {
         submitBtn.disabled = false;
@@ -172,10 +167,6 @@ function showFeedback(form, message, type) {
   }
 
   banner.textContent = message;
-  
-  // Insert at the top of the form
   form.insertBefore(banner, form.firstChild);
-  
-  // Auto-scroll to view the banner on mobile
   banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }

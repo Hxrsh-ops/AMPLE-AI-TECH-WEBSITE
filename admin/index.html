@@ -362,7 +362,7 @@
 
   <script>
     const API_URL = '/api';
-    let sessionToken = localStorage.getItem('adminToken');
+    let sessionToken = sessionStorage.getItem('adminToken');
     let autoLogoutTimer = null;
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -430,7 +430,7 @@
         }
 
         sessionToken = result.token;
-        localStorage.setItem('adminToken', sessionToken);
+        sessionStorage.setItem('adminToken', sessionToken);
         showDashboard();
         
       } catch (err) {
@@ -441,7 +441,7 @@
 
     function handleLogout() {
       sessionToken = null;
-      localStorage.removeItem('adminToken');
+      sessionStorage.removeItem('adminToken');
       showLogin();
     }
 

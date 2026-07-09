@@ -47,3 +47,18 @@ WITH CHECK (false);
 CREATE INDEX IF NOT EXISTS idx_contact_submissions_status ON contact_submissions(status);
 CREATE INDEX IF NOT EXISTS idx_contact_submissions_created_at ON contact_submissions(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_newsletter_subscribers_created_at ON newsletter_subscribers(created_at DESC);
+
+-- 3. Create admin login attempts tracking table for IP lockout
+CREATE TABLE IF NOT EXISTS admin_login_attempts (
+    ip TEXT PRIMARY KEY,
+    attempts INT NOT NULL DEFAULT 1,
+    locked_until TIMESTAMP WITH TIME ZONE
+);
+
+ALTER TABLE admin_login_attempts ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Deny public anon access to login attempts"
+ON admin_login_attempts
+FOR ALL
+USING (false)
+WITH CHECK (false);

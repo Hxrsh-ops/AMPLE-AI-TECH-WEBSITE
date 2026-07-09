@@ -1,15 +1,28 @@
 const crypto = require('crypto');
 
 exports.handler = async (event, context) => {
-  // CORS Preflight
+  // CORS Origin check
+  const origin = event.headers.origin || event.headers.Origin || '';
+  const allowedOrigins = [
+    /^http:\/\/localhost(:\d+)?$/,
+    /^https:\/\/([a-zA-Z0-9-]+\.)?netlify\.app$/
+  ];
+  let corsOrigin = '';
+  if (allowedOrigins.some(regex => regex.test(origin))) {
+    corsOrigin = origin;
+  }
+
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': corsOrigin || 'null',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'GET, PATCH, OPTIONS',
+    'Access-Control-Allow-Credentials': 'true'
+  };
+
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Methods': 'GET, POST, PATCH, OPTIONS'
-      },
+      headers: corsHeaders,
       body: ''
     };
   }
@@ -19,13 +32,22 @@ exports.handler = async (event, context) => {
   if (!authHeader.startsWith('Bearer ')) {
     return {
       statusCode: 401,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: corsHeaders,
       body: JSON.stringify({ error: 'Unauthorized: Missing token.' })
     };
   }
 
   const token = authHeader.substring(7);
-  const jwtSecret = process.env.JWT_SECRET || 'am-secret-key-2026-ampleai';
+  const jwtSecret = process.env.JWT_SECRET;
+
+  if (!jwtSecret) {
+    console.error('[Admin Data Error] Missing required JWT_SECRET server environment variable.');
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({ error: 'Server authentication configuration missing.' })
+    };
+  }
 
   try {
     const parts = token.split('.');
@@ -44,7 +66,7 @@ exports.handler = async (event, context) => {
     if (signature !== expectedSignature) {
       return {
         statusCode: 401,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: corsHeaders,
         body: JSON.stringify({ error: 'Unauthorized: Invalid token signature.' })
       };
     }
@@ -54,7 +76,7 @@ exports.handler = async (event, context) => {
     if (payload.exp < Date.now()) {
       return {
         statusCode: 401,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: corsHeaders,
         body: JSON.stringify({ error: 'Unauthorized: Token expired.' })
       };
     }
@@ -66,7 +88,7 @@ exports.handler = async (event, context) => {
     if (!supabaseUrl || !supabaseServiceKey) {
       return {
         statusCode: 500,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: corsHeaders,
         body: JSON.stringify({ error: 'Server database configuration missing.' })
       };
     }
@@ -77,12 +99,12 @@ exports.handler = async (event, context) => {
       if (!id || !status) {
         return {
           statusCode: 400,
-          headers: { 'Access-Control-Allow-Origin': '*' },
+          headers: corsHeaders,
           body: JSON.stringify({ error: 'ID and Status are required.' })
         };
       }
 
-      const patchResponse = await fetch(`${supabaseUrl}/rest/v1/contact_submissions?id=eq.${id}`, {
+      const patchResponse = await fetch(`${supabaseUrl}/rest/v1/contact_submissions?id=eq.${encodeURIComponent(id)}`, {
         method: 'PATCH',
         headers: {
           'apikey': supabaseServiceKey,
@@ -100,10 +122,7 @@ exports.handler = async (event, context) => {
 
       return {
         statusCode: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json'
-        },
+        headers: corsHeaders,
         body: JSON.stringify({ success: true, message: 'Status updated successfully' })
       };
     }
@@ -142,10 +161,7 @@ exports.handler = async (event, context) => {
 
       return {
         statusCode: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json'
-        },
+        headers: corsHeaders,
         body: JSON.stringify({
           submissions,
           subscribers
@@ -155,7 +171,7 @@ exports.handler = async (event, context) => {
 
     return {
       statusCode: 405,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: corsHeaders,
       body: JSON.stringify({ error: 'Method Not Allowed' })
     };
 
@@ -163,10 +179,7 @@ exports.handler = async (event, context) => {
     console.error('[Admin Data API Error]', error);
     return {
       statusCode: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      },
+      headers: corsHeaders,
       body: JSON.stringify({ error: 'Internal Server Error' })
     };
   }
