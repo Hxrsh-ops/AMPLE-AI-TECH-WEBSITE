@@ -1,3 +1,16 @@
+
+if (history.scrollRestoration) {
+    history.scrollRestoration = 'manual';
+}
+
+function getRelativePathPrefix() {
+    const p = window.location.pathname;
+    if (p.includes('/blog/') || p.includes('/case-studies/') || p.includes('/legal-pages/')) {
+        return '../';
+    }
+    return './';
+}
+
 /**
  * AmpleAI — v12 DEFINITIVE
  *
@@ -5,6 +18,8 @@
  * and animates accordion flex properties directly for perfect reliability.
  */
 import '../styles/index.css';
+
+let currentTestimonialIndex = 0;
 
 /* ─────────────────────────────────────────────────────────
    GLOBAL IMAGE ERROR CORRUPTION INTERCEPTOR (SELF-HEALING)
@@ -76,7 +91,7 @@ window.addEventListener('error', function (e) {
 function scanAndPatchAllImages() {
     document.querySelectorAll('img').forEach(img => {
         // If image has failed to load (naturalWidth/Height is 0) or has error state
-        if (img.src && (img.naturalWidth === 0 || (img.complete && img.naturalHeight === 0))) {
+        if (img.src && img.complete && (img.naturalWidth === 0 || img.naturalHeight === 0)) {
             handleFailedImg(img);
         }
     });
@@ -85,19 +100,22 @@ function scanAndPatchAllImages() {
 document.addEventListener('DOMContentLoaded', scanAndPatchAllImages);
 window.addEventListener('load', scanAndPatchAllImages);
 // Periodic checking to handle deferred/hydrated images
-setInterval(scanAndPatchAllImages, 1000);
+const imgScanInterval = setInterval(scanAndPatchAllImages, 1000);
+setTimeout(() => {
+    clearInterval(imgScanInterval);
+}, 6000);
 
 const IMAGE_MAP = {
-    'OR4te0XAqQp3f22sxMboTobp5w': '/assets/team-ethan.png',
-    'RiB4JVDNfxz4HhK8vki0WzV5c8M': '/assets/team-ethan.png',
-    'tYeMIbQoz3vIw3JkGIgJO3aAOk': '/assets/team-ava.png',
-    'EEYaHcqogk3IyHDryrKLPdSzk': '/assets/team-ava.png',
-    'vIculIPqr7lCDLJUfsY7ks1Zw': '/assets/team-noah.png',
-    'dCtkpnoE7qEITkDuDvst22PaAOU': '/assets/team-noah.png',
-    'Sg9QXajgT380oA1yHySylazfGs': '/assets/team-sarah.png',
-    'nTPaXeQZ8UlpaJbZOVt7Cvmkjq0': '/assets/team-sarah.png',
-    'jWmFga0Em87djh62ANoLFTFZ7G4': '/assets/team-liam.png',
-    'ErWYoaPZx0lwx3MzZ9fBi2yGRY': '/assets/who-we-are.png',
+    'OR4te0XAqQp3f22sxMboTobp5w': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400',
+    'RiB4JVDNfxz4HhK8vki0WzV5c8M': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400',
+    'tYeMIbQoz3vIw3JkGIgJO3aAOk': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400',
+    'EEYaHcqogk3IyHDryrKLPdSzk': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400',
+    'vIculIPqr7lCDLJUfsY7ks1Zw': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400',
+    'dCtkpnoE7qEITkDuDvst22PaAOU': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400',
+    'Sg9QXajgT380oA1yHySylazfGs': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=400',
+    'nTPaXeQZ8UlpaJbZOVt7Cvmkjq0': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=400',
+    'jWmFga0Em87djh62ANoLFTFZ7G4': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400',
+    'ErWYoaPZx0lwx3MzZ9fBi2yGRY': 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=1200',
     'p9GIEWvTcTTUhNjOIqhzovHNs': 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 };
 
@@ -176,12 +194,14 @@ if (document.readyState === 'loading') {
 const MENU_LINKS = [
     { label: 'HOME',         slug: 'hero' },
     { label: 'ABOUT US',     slug: 'about' },
-    { label: 'SERVICES',     slug: 'services' },
+    { label: 'BLOG',         slug: 'blog' },
     { label: 'CASE STUDIES', slug: 'case-studies' },
     { label: 'CONTACT US',   slug: 'contact' },
 ];
 
+
 function init() {
+    initPageLoader();
     initHeroCanvas();
     initSkeletonLoading();
     assignSectionIds();
@@ -197,6 +217,10 @@ function init() {
 
     if (typeof gsap !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
+        ScrollTrigger.config({
+            limitCallbacks: true,
+            ignoreMobileResize: true
+        });
         initLenisScroll();
 
         // Delay scroll and interactive animations slightly until React hydration has finished
@@ -232,6 +256,8 @@ function init() {
     patchTestimonialsSection();
     initVoicesTicker();
     patchPricingSection();
+    patchRelatedProjectsLinks();
+    patchMoreProjectsTableRows();
 
     // Initialize MutationObserver to intercept branding, images, and counters
     // Delayed until after window load + 500ms to prevent React hydration mismatch crashes
@@ -253,6 +279,7 @@ function init() {
 
     document.body.classList.add('js-loaded');
     console.log('%c✦ AmpletechAI v12', 'color:#a8ff78;font-weight:bold;font-size:14px');
+    registerServiceWorker();
 }
 
 // Bypasses HMR DOMContentLoaded racing condition in Vite
@@ -291,12 +318,88 @@ function unlockHiddenElements() {
    ───────────────────────────────────────────────────────── */
 function initLenisScroll() {
     if (typeof Lenis === 'undefined') return;
-    const lenis = new Lenis({ duration: 1.2, smoothWheel: true, autoRaf: false });
-    window.__lenis = lenis;
-    lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add(t => lenis.raf(t * 1000));
-    gsap.ticker.lagSmoothing(0);
+    if (window.__lenis) return;
+
+    const startLenis = () => {
+        if (window.__lenis) return;
+        const lenis = new Lenis({ 
+            duration: 1.2, 
+            smoothWheel: true, 
+            autoRaf: false 
+        });
+        window.__lenis = lenis;
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add(t => lenis.raf(t * 1000));
+        gsap.ticker.lagSmoothing(0);
+        console.log('[AmpleAI] Smooth scrolling (Lenis) initialized successfully');
+        
+        if (window.ScrollTrigger) {
+            window.ScrollTrigger.refresh();
+        }
+    };
+
+    if (document.readyState === 'complete') {
+        setTimeout(startLenis, 500);
+    } else {
+        window.addEventListener('load', () => {
+            setTimeout(startLenis, 500);
+        });
+    }
 }
+
+/* ─────────────────────────────────────────────────────────
+   PAGE LOADER — Holds viewport at top until DOM settles
+   ───────────────────────────────────────────────────────── */
+function initPageLoader() {
+    const loader = document.getElementById('ampleai-loader');
+    if (!loader) return;
+
+    // Prevent body scrolling
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+    const progressBar = loader.querySelector('.loader-progress-bar');
+    let progress = 0;
+    
+    // Simulate progress animation
+    const progressInterval = setInterval(() => {
+        progress += Math.random() * 8;
+        if (progress >= 90) {
+            progress = 90;
+            clearInterval(progressInterval);
+        }
+        if (progressBar) progressBar.style.width = `${progress}%`;
+    }, 100);
+
+    const handleLoadComplete = () => {
+        clearInterval(progressInterval);
+        if (progressBar) progressBar.style.width = '100%';
+        
+        setTimeout(() => {
+            loader.classList.add('loaded');
+            // Restore body scrolling
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+            
+            // Refresh ScrollTrigger once DOM layout has fully settled
+            setTimeout(() => {
+                if (window.ScrollTrigger) {
+                    window.ScrollTrigger.refresh();
+                }
+            }, 500);
+        }, 300);
+    };
+
+    // Fallback: load complete after 2.2 seconds
+    const fallbackTimeout = setTimeout(handleLoadComplete, 2200);
+
+    window.addEventListener('load', () => {
+        clearTimeout(fallbackTimeout);
+        // Ensure minimum loader display time of 1.5 seconds
+        setTimeout(handleLoadComplete, 1500);
+    });
+}
+
 
 
 /* ─────────────────────────────────────────────────────────
@@ -619,7 +722,8 @@ function buildAndInjectMenu() {
         <div id="ampleai-menu-topbar">
             <button id="ampleai-menu-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg><span>CLOSE</span></button>
             <div id="ampleai-menu-logo-center">AmpletechAI</div>
-            <a href="https://cal.com/" target="_blank" rel="noopener" id="ampleai-menu-book-btn">BOOK A CALL <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1 10L10 1M10 1H4M10 1v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
+            <!-- TODO: Replace with actual Cal.com booking URL once account is created -->
+            <a href="https://cal.com/" target="_blank" rel="noopener noreferrer" id="ampleai-menu-book-btn">BOOK A CALL <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1 10L10 1M10 1H4M10 1v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
         </div>
         <div id="ampleai-menu-body">
             <div id="ampleai-menu-left"><nav id="ampleai-menu-links">
@@ -628,16 +732,57 @@ function buildAndInjectMenu() {
                     return `<a href="${href}" class="ampleai-menu-link" ${l.href?'target="_blank" rel="noopener" data-external="true"':`data-slug="${l.slug||''}"`}><span>${l.label}</span><span class="ampleai-menu-link-arrow">↗</span></a>`;
                 }).join('')}
             </nav></div>
-            <div id="ampleai-menu-right">
-                <div id="ampleai-menu-tagline"><h3>DISCOVER THE VISION AND VALUES DRIVING AMPLETECHAI FORWARD</h3>
-                    <div id="ampleai-menu-globe"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" stroke-width="1.2"/><path d="M2 12h20M12 2a14 14 0 010 20M12 2a14 14 0 000 20" stroke="rgba(255,255,255,0.3)" stroke-width="1.2"/></svg>
-                    <span>10.850° N · 76.271° E</span></div>
+            <div id="ampleai-menu-middle" class="ampleai-menu-middle-gap">
+                <div class="menu-quick-stats">
+                    <h4>QUICK STATS</h4>
+                    <a href="${getRelativePathPrefix()}case-studies.html" class="menu-stat-pill">
+                        <span class="stat-num">5+</span>
+                        <span class="stat-lbl">Projects delivered</span>
+                    </a>
+                    <a href="${getRelativePathPrefix()}index.html#testimonials" class="menu-stat-pill">
+                        <span class="stat-num">98%</span>
+                        <span class="stat-lbl">Client satisfaction</span>
+                    </a>
+                    <a href="${getRelativePathPrefix()}index.html#expertise" class="menu-stat-pill">
+                        <span class="stat-num">100%</span>
+                        <span class="stat-lbl">System uptime</span>
+                    </a>
                 </div>
-                <div id="ampleai-menu-info">
-                    
-                    <div class="ampleai-menu-info-block"><h4>CONTACT ON</h4><p>+91 7338989888</p><a href="mailto:hello@ampletechai.com">HELLO@AMPLETECHAI.COM</a></div>
+                <div class="menu-socials">
+                    <h4>FOLLOW US</h4>
+                    <div class="menu-social-links-row">
+                        <a href="https://www.instagram.com/ample.ai/" target="_blank" rel="noopener noreferrer" class="menu-social-link">Instagram</a>
+                        <a href="https://x.com/" target="_blank" rel="noopener noreferrer" class="menu-social-link">Twitter/X</a>
+                        <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" class="menu-social-link">LinkedIn</a>
+                        <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" class="menu-social-link">YouTube</a>
+                    </div>
                 </div>
             </div>
+            <div id="ampleai-menu-right">
+                <div class="menu-logo-showcase">
+                    <div class="menu-logo-showcase-glow"></div>
+                    <img src="${getRelativePathPrefix()}assets/Ample.ai.svg" alt="AmpletechAI Logo" class="menu-showcase-logo">
+                </div>
+                
+                <a href="${getRelativePathPrefix()}about-us.html" class="menu-about-btn">
+                    <span>VIEW ABOUT US</span>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </a>
+                
+                <div class="menu-right-footer">
+                    <div class="menu-right-contact">
+                        <div class="menu-contact-item">
+                            <span class="label">TALK TO US</span>
+                            <a href="tel:+917338989888" class="val">+91 7338989888</a>
+                        </div>
+                        <div class="menu-contact-item">
+                            <span class="label">EMAIL US</span>
+                            <a href="mailto:hello@ampletechai.com" class="val">hello@ampletechai.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>`;
     document.body.appendChild(d);
     document.getElementById('ampleai-menu-close').addEventListener('click', closeMenu);
@@ -654,15 +799,15 @@ function buildAndInjectMenu() {
                     else t.scrollIntoView({ behavior: 'smooth' });
                 } else if (slug) {
                     if (slug === 'about') {
-                        window.location.href = '/about-us.html';
+                        window.location.href = getRelativePathPrefix() + 'about-us.html';
                     } else if (slug === 'case-studies') {
-                        window.location.href = '/case-studies.html';
+                        window.location.href = getRelativePathPrefix() + 'case-studies.html';
                     } else if (slug === 'contact') {
-                        window.location.href = '/contact.html';
+                        window.location.href = getRelativePathPrefix() + 'contact.html';
                     } else if (slug === 'blog') {
-                        window.location.href = '/blog.html';
+                        window.location.href = getRelativePathPrefix() + 'blog.html';
                     } else {
-                        window.location.href = `/index.html#${slug}`;
+                        window.location.href = getRelativePathPrefix() + `index.html#${slug}`;
                     }
                 }
             }, 350);
@@ -685,6 +830,10 @@ function openMenu() {
     const d = document.getElementById('ampleai-menu-drawer');
     if (!d) return;
     document.body.classList.add('ampleai-menu-open');
+    document.body.style.overflow = 'hidden';
+    document.body.style.overflowY = 'hidden';
+    if (window.__lenis) window.__lenis.stop();
+    
     d.setAttribute('aria-hidden', 'false');
     d.style.display = 'block';
     if (typeof gsap !== 'undefined') {
@@ -700,11 +849,16 @@ function closeMenu() {
     const d = document.getElementById('ampleai-menu-drawer');
     if (!d) return;
     document.body.classList.remove('ampleai-menu-open');
+    document.body.style.overflow = '';
+    document.body.style.overflowY = '';
+    if (window.__lenis) window.__lenis.start();
+    
     d.setAttribute('aria-hidden', 'true');
     if (typeof gsap !== 'undefined') {
         gsap.to(d, { opacity: 0, duration: 0.25, onComplete: () => { d.style.display = 'none'; } });
     } else { d.style.display = 'none'; }
 }
+
 
 
 /* ─────────────────────────────────────────────────────────
@@ -1167,6 +1321,26 @@ function animateCounter(counterEl) {
 
 function swapWatermarkedImages() {
     document.querySelectorAll('img').forEach(img => {
+        const anchor = img.closest('a');
+        if (anchor && anchor.href) {
+            if (anchor.href.includes('dental-clinic-voice-receptionist') && img.getAttribute('data-case-study') !== 'dental') {
+                img.src = 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=800';
+                img.removeAttribute('srcset');
+                img.setAttribute('data-case-study', 'dental');
+                return;
+            } else if (anchor.href.includes('real-estate-lead-automation') && img.getAttribute('data-case-study') !== 'realestate') {
+                img.src = 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&q=80&w=800';
+                img.removeAttribute('srcset');
+                img.setAttribute('data-case-study', 'realestate');
+                return;
+            } else if (anchor.href.includes('ecommerce-support-assistant') && img.getAttribute('data-case-study') !== 'ecommerce') {
+                img.src = 'https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80&w=800';
+                img.removeAttribute('srcset');
+                img.setAttribute('data-case-study', 'ecommerce');
+                return;
+            }
+        }
+
         for (const [key, localSrc] of Object.entries(IMAGE_MAP)) {
             if (img.src.includes(key) && img.getAttribute('data-swapped') !== key) {
                 img.src = localSrc;
@@ -1176,6 +1350,7 @@ function swapWatermarkedImages() {
         }
     });
 }
+
 
 function swapWatermarkedBackgrounds() {
     document.querySelectorAll('[style*="framerusercontent.com"]').forEach(el => {
@@ -1282,55 +1457,126 @@ function initWhatWeBuildInteractions() {
     gsap.registerPlugin(ScrollTrigger);
 
     const totalSteps = 5;
+    let currentStep = 1;
 
-    // Timeline mapping scroll scrub to dot movement & step activation
+    function getStepYPositions() {
+        const line = document.querySelector('.showcase-timeline-line');
+        if (!line) return [];
+        const lineRect = line.getBoundingClientRect();
+        const positions = [];
+        for (let step = 1; step <= 5; step++) {
+            const item = document.querySelector(`.showcase-step-item[data-step="${step}"]`);
+            if (item) {
+                const rect = item.getBoundingClientRect();
+                const relativeY = (rect.top + rect.height / 2) - lineRect.top;
+                positions.push(relativeY);
+            } else {
+                positions.push(0);
+            }
+        }
+        return positions;
+    }
+
+    function getSmoothYForProgress(progress) {
+        const positions = getStepYPositions();
+        if (positions.length === 0) return 0;
+        const scaledProgress = progress * (positions.length - 1);
+        const index = Math.floor(scaledProgress);
+        const fraction = scaledProgress - index;
+        if (index >= positions.length - 1) {
+            return positions[positions.length - 1];
+        }
+        const yStart = positions[index];
+        const yEnd = positions[index + 1];
+        return yStart + (yEnd - yStart) * fraction;
+    }
+
+    // Set initial dot position after a short delay for layout calculation
+    setTimeout(() => {
+        const progressEl = document.querySelector('.showcase-timeline-progress');
+        const dotEl = document.querySelector('.showcase-timeline-dot');
+        const positions = getStepYPositions();
+        if (positions.length > 0) {
+            if (progressEl) progressEl.style.height = `${positions[0]}px`;
+            if (dotEl) dotEl.style.transform = `translateY(${positions[0]}px)`;
+        }
+    }, 100);
+
+    // Timeline mapping scroll scrub to step activation
     const tl = gsap.timeline({
         scrollTrigger: {
+            id: "showcase-scroll",
             trigger: ".showcase-scroll-container",
             start: "top top",
             end: "+=3200",
-            scrub: true,
+            scrub: 0.3,
             pin: true,
-            anticipatePin: 1
+            anticipatePin: 1,
+            onUpdate: (self) => {
+                const step = Math.min(totalSteps, Math.max(1, Math.round(self.progress * (totalSteps - 1)) + 1));
+                if (currentStep !== step) {
+                    currentStep = step;
+                    
+                    document.querySelectorAll('.showcase-step-item').forEach(item => {
+                        item.classList.toggle('active', parseInt(item.getAttribute('data-step')) === step);
+                    });
+                    
+                    document.querySelectorAll('.showcase-panel').forEach(panel => {
+                        panel.classList.toggle('active', parseInt(panel.getAttribute('data-panel')) === step);
+                    });
+                    
+                    document.querySelectorAll('.showcase-dot').forEach(dot => {
+                        dot.classList.toggle('active', parseInt(dot.getAttribute('data-dot')) === step);
+                    });
+                }
+                
+                // Smoothly update the progress bar and dot position
+                const targetY = getSmoothYForProgress(self.progress);
+                const progressEl = document.querySelector('.showcase-timeline-progress');
+                const dotEl = document.querySelector('.showcase-timeline-dot');
+                if (progressEl) {
+                    progressEl.style.height = `${targetY}px`;
+                }
+                if (dotEl) {
+                    dotEl.style.transform = `translateY(${targetY}px)`;
+                }
+            }
         }
     });
 
-    // Animate glowing indicator dot down the vertical line
-    tl.to(".showcase-timeline-dot", {
-        y: "280px",
-        ease: "none",
-        duration: totalSteps - 1
-    }, 0);
-
-    // Stagger step activations & panel crossfades
-    for (let i = 1; i < totalSteps; i++) {
-        const timeOffset = i; // Maps scroll progress intervals
-        
-        tl.to(`.showcase-step-item[data-step='${i}']`, { opacity: 0.25, duration: 0.3 }, timeOffset - 0.2)
-          .to(`.showcase-step-item[data-step='${i+1}']`, { opacity: 1, duration: 0.3 }, timeOffset - 0.2)
-          
-          .to(`.showcase-panel[data-panel='${i}']`, { opacity: 0, scale: 0.96, duration: 0.3 }, timeOffset - 0.2)
-          .to(`.showcase-panel[data-panel='${i+1}']`, { opacity: 1, scale: 1, duration: 0.3 }, timeOffset - 0.2)
-          
-          .to(`.showcase-dot[data-dot='${i}']`, { backgroundColor: "rgba(255,255,255,0.15)", scale: 1, duration: 0.2 }, timeOffset - 0.2)
-          .to(`.showcase-dot[data-dot='${i+1}']`, { backgroundColor: "#ffffff", scale: 1.2, duration: 0.2 }, timeOffset - 0.2);
-      }
-
-    // explore solutions scroll binder
-    const exploreBtn = document.getElementById('btn-explore-solutions-new');
-    if (exploreBtn) {
-        exploreBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const target = document.getElementById('expertise') || document.querySelector('[data-framer-name="Services"]');
-            if (target) {
+    // Click handlers for steps and dots
+    document.querySelectorAll('.showcase-step-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const stepNum = parseInt(item.getAttribute('data-step'));
+            const st = ScrollTrigger.getById("showcase-scroll");
+            if (st) {
+                const targetScroll = st.start + (st.end - st.start) * (stepNum - 1) / (totalSteps - 1);
                 if (window.__lenis) {
-                    window.__lenis.scrollTo(target, { offset: -80 });
+                    window.__lenis.scrollTo(targetScroll, { duration: 0.8 });
                 } else {
-                    target.scrollIntoView({ behavior: 'smooth' });
+                    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
                 }
             }
         });
-    }
+    });
+
+    document.querySelectorAll('.showcase-dot').forEach(dot => {
+        dot.addEventListener('click', () => {
+            const dotNum = parseInt(dot.getAttribute('data-dot'));
+            const st = ScrollTrigger.getById("showcase-scroll");
+            if (st) {
+                const targetScroll = st.start + (st.end - st.start) * (dotNum - 1) / (totalSteps - 1);
+                if (window.__lenis) {
+                    window.__lenis.scrollTo(targetScroll, { duration: 0.8 });
+                } else {
+                    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                }
+            }
+        });
+    });
+
+    // Refresh ScrollTrigger to align showcase offsets
+    ScrollTrigger.refresh();
 }
 
 function ensureGradientBeam() {
@@ -1408,26 +1654,26 @@ function initTechStackMarquee() {
            <div class="ample-marquee-container">
                <div class="ample-marquee-track">
                    <div class="ample-marquee-content">
-                       <span class="tech-item"><span class="tech-icon">⌘</span> OpenAI</span>
-                       <span class="tech-item"><span class="tech-icon">⚡</span> Supabase</span>
-                       <span class="tech-item"><span class="tech-icon">∞</span> n8n</span>
-                       <span class="tech-item"><span class="tech-icon">🎙️</span> ElevenLabs</span>
-                       <span class="tech-item"><span class="tech-icon">△</span> Vercel</span>
-                       <span class="tech-item"><span class="tech-icon">☁️</span> Google Cloud</span>
-                       <span class="tech-item"><span class="tech-icon">A</span> Anthropic</span>
-                       <span class="tech-item"><span class="tech-icon">❋</span> Stripe</span>
-                   </div>
+                        <span class="tech-item"><img class="tech-logo" src="/assets/openai.svg" alt="OpenAI"> OpenAI</span>
+                        <span class="tech-item"><img class="tech-logo" src="/assets/supabase.svg" alt="Supabase"> Supabase</span>
+                        <span class="tech-item"><img class="tech-logo" src="/assets/n8n.svg" alt="n8n"> n8n</span>
+                        <span class="tech-item"><img class="tech-logo" src="/assets/elevenlabs.svg" alt="ElevenLabs"> ElevenLabs</span>
+                        <span class="tech-item"><img class="tech-logo" src="/assets/make.svg" alt="Make"> Make.com</span>
+                        <span class="tech-item"><img class="tech-logo" src="/assets/twilio.svg" alt="Twilio"> Twilio</span>
+                        <span class="tech-item"><img class="tech-logo" src="/assets/claude.svg" alt="Claude"> Claude</span>
+                        <span class="tech-item"><img class="tech-logo" src="/assets/whatsapp.svg" alt="WhatsApp"> WhatsApp</span>
+                    </div>
                    <!-- Duplicate for infinite scroll -->
                    <div class="ample-marquee-content" aria-hidden="true">
-                       <span class="tech-item"><span class="tech-icon">⌘</span> OpenAI</span>
-                       <span class="tech-item"><span class="tech-icon">⚡</span> Supabase</span>
-                       <span class="tech-item"><span class="tech-icon">∞</span> n8n</span>
-                       <span class="tech-item"><span class="tech-icon">🎙️</span> ElevenLabs</span>
-                       <span class="tech-item"><span class="tech-icon">△</span> Vercel</span>
-                       <span class="tech-item"><span class="tech-icon">☁️</span> Google Cloud</span>
-                       <span class="tech-item"><span class="tech-icon">A</span> Anthropic</span>
-                       <span class="tech-item"><span class="tech-icon">❋</span> Stripe</span>
-                   </div>
+                        <span class="tech-item"><img class="tech-logo" src="/assets/openai.svg" alt="OpenAI"> OpenAI</span>
+                        <span class="tech-item"><img class="tech-logo" src="/assets/supabase.svg" alt="Supabase"> Supabase</span>
+                        <span class="tech-item"><img class="tech-logo" src="/assets/n8n.svg" alt="n8n"> n8n</span>
+                        <span class="tech-item"><img class="tech-logo" src="/assets/elevenlabs.svg" alt="ElevenLabs"> ElevenLabs</span>
+                        <span class="tech-item"><img class="tech-logo" src="/assets/make.svg" alt="Make"> Make.com</span>
+                        <span class="tech-item"><img class="tech-logo" src="/assets/twilio.svg" alt="Twilio"> Twilio</span>
+                        <span class="tech-item"><img class="tech-logo" src="/assets/claude.svg" alt="Claude"> Claude</span>
+                        <span class="tech-item"><img class="tech-logo" src="/assets/whatsapp.svg" alt="WhatsApp"> WhatsApp</span>
+                    </div>
                </div>
            </div>
         </div>
@@ -1475,7 +1721,7 @@ function initStatsZoom() {
             trigger: wrapper,
             start: "top bottom",
             end: "bottom top",
-            scrub: true
+            scrub: 1
         }
     });
 }
@@ -1650,8 +1896,15 @@ function initFaqAccordion() {
 }
 
 function initRuntimeInterceptors() {
+    initFutureStatsAnimation();
+    fixAccessibilityDuplications();
+    initTeamProgressBars();
+    initAboutProjectsStat();
+    initFooterUpgrades();
+    initTestimonialArrows();
     initCaseStudyMetrics();
     initCustomMetrics();
+    initWhyDelayHurtsCounters();
     initFaqAccordion();
     initStatsZoom();
     initTechStackMarquee();
@@ -1666,6 +1919,9 @@ function initRuntimeInterceptors() {
     replaceTextBranding(document.body);
     applyCardHoverClasses();
     patchPricingSection();
+    patchRelatedProjectsLinks();
+    patchMoreProjectsTableRows();
+    removeCaseStudyDateRow();
     updateKochiClock();
     setInterval(updateKochiClock, 10000);
     initWhatWeBuildInteractions();
@@ -1679,13 +1935,36 @@ function initRuntimeInterceptors() {
             ensureGradientBeam();
             const patched = fixStatsCounters();
             swapWatermarkedImages();
+            patchRelatedProjectsLinks();
+            patchMoreProjectsTableRows();
+            removeCaseStudyDateRow();
+            initTeamProgressBars();
+            initWhyDelayHurtsCounters();
+            initTestimonialArrows();
+            fixAccessibilityDuplications();
             if (patched) console.log(`[AmpletechAI] ✓ Stats patched after ${delay}ms delay (${patched} elements)`);
+
         }, delay);
     });
+
     
+    // Track active scrolling to prevent MutationObserver layout thrashing during scroll
+    let isScrolling = false;
+    let scrollTimeout = null;
+    window.addEventListener('scroll', () => {
+        isScrolling = true;
+        if (scrollTimeout) clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            isScrolling = false;
+        }, 150);
+    }, { passive: true });
+
     // Setup MutationObserver for dynamic updates
     let debounceTimeout = null;
     const observer = new MutationObserver((mutations) => {
+        // Skip updates during active scrolling to prevent layout thrashing and ScrollTrigger mismatches
+        if (isScrolling) return;
+
         let hasRelevantMutation = false;
         
         mutations.forEach(m => {
@@ -1733,7 +2012,14 @@ function initRuntimeInterceptors() {
                 ensureGradientBeam();
                 fixStatsCounters();
                 swapWatermarkedImages();
+                patchRelatedProjectsLinks();
+                patchMoreProjectsTableRows();
                 swapWatermarkedBackgrounds();
+                
+                // Refresh ScrollTrigger to align offsets after dynamic layout patches
+                if (window.ScrollTrigger) {
+                    window.ScrollTrigger.refresh();
+                }
             }, 150);
         }
     });
@@ -1742,6 +2028,12 @@ function initRuntimeInterceptors() {
         subtree: true,
         characterData: true
     });
+    
+    // Disconnect the observer after 8 seconds once page hydration has fully settled
+    setTimeout(() => {
+        observer.disconnect();
+        console.log('[AmpletechAI] MutationObserver disconnected after settlement');
+    }, 8000);
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -1767,7 +2059,7 @@ function initClientsBgZoom() {
                     trigger: triggerSection,
                     start: "top bottom",
                     end: "bottom top",
-                    scrub: true
+                    scrub: 1
                 }
             }
         );
@@ -1789,14 +2081,15 @@ function patchTestimonialsSection() {
             '#testimonials [data-framer-name="Testimonial 02"],',
             '#testimonials [data-framer-name="Testimonial 03"],',
             '#testimonials [data-framer-name="Testimonial 04"],',
-            '#testimonials [data-framer-name="Testimonial 05"] { display:none !important; }',
+            '#testimonials [data-framer-name="Testimonial 05"] { display:none; }',
             '#testimonials [data-framer-name^="Avatar 0"],',
             '#testimonials [name^="Avatar 0"] { display:none !important; }',
-            'div#main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > main:nth-of-type(1) > section#testimonials:nth-of-type(6) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > img:nth-of-type(1) { width: 80px !important; height: 80px !important; margin-left: 0px !important; padding-left: 0px !important; margin-right: 0px !important; margin-top: -36px !important; margin-bottom: -26px !important; }',
-            'div#main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > main:nth-of-type(1) > section#testimonials:nth-of-type(6) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > img:nth-of-type(1) { width: 60px !important; height: 60px !important; }',
-            'div#main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > main:nth-of-type(1) > section#testimonials:nth-of-type(6) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) { height: 481px !important; width: 481px !important; }',
-            'div#main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > main:nth-of-type(1) > section#testimonials:nth-of-type(6) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) { height: 400px !important; }',
-            'div#main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > main:nth-of-type(1) > section#testimonials:nth-of-type(6) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(1) { margin-left: -25px !important; margin-top: -11px !important; padding-top: 0px !important; padding-bottom: 0px !important; }',
+            '#testimonials .framer-133xo47-container,',
+            '#testimonials .framer-1f8p3c1-container,',
+            '#testimonials .framer-enqnre-container,',
+            '#testimonials .framer-137dy8a-container,',
+            '#testimonials .framer-s7hlof-container { height: auto !important; min-height: 380px !important; display: flex !important; flex-direction: column !important; }',
+            '#testimonials .framer-dv9xz { height: auto !important; min-height: 380px !important; flex: 1 1 auto !important; display: flex !important; flex-direction: column !important; justify-content: center !important; padding: 40px !important; box-sizing: border-box !important; }'
         ].join('\n');
         document.head.appendChild(style);
     }
@@ -1813,7 +2106,14 @@ function patchTestimonialsSection() {
         ];
         hiddenCards.forEach(sel => {
             section.querySelectorAll(sel).forEach(el => {
-                el.style.display = 'none';
+                const parent = el.parentElement;
+                if (parent) {
+                    const children = Array.from(parent.children);
+                    const index = children.indexOf(el);
+                    if (index !== currentTestimonialIndex) {
+                        el.style.display = 'none';
+                    }
+                }
             });
         });
 
@@ -2165,21 +2465,27 @@ const customMetricIo = new IntersectionObserver((entries) => {
             const valEl = entry.target;
             if (valEl.classList.contains('animated')) return;
             valEl.classList.add('animated');
-            const target = parseFloat(valEl.getAttribute('data-target'));
+            
+            const rawTarget = valEl.getAttribute('data-target') || '';
+            const target = parseFloat(rawTarget.replace(/[^0-9.]/g, '')) || 0;
+            const prefix = (rawTarget.match(/^[^\d]*/) || [''])[0];
+            const suffix = (rawTarget.match(/[^\d]*$/) || [''])[0];
+            
             const duration = 2000;
             const startTime = performance.now();
             function update(now) {
                 const elapsed = now - startTime;
                 const progress = Math.min(elapsed / duration, 1);
                 const easeOut = 1 - Math.pow(1 - progress, 3);
-                valEl.textContent = Math.floor(target * easeOut);
+                valEl.textContent = prefix + Math.floor(target * easeOut) + suffix;
                 if (progress < 1) requestAnimationFrame(update);
-                else valEl.textContent = target;
+                else valEl.textContent = rawTarget;
             }
             requestAnimationFrame(update);
         }
     });
 }, { threshold: 0.1 });
+
 
 function observeCustomMetric(container, valEl) {
     if (valEl) {
@@ -2204,15 +2510,15 @@ function initCaseStudyMetrics() {
     } else if (window.location.pathname.includes('ecommerce')) {
         statsData = [
             { num: 85, suffix: '%', label: 'Automated response rate' },
-            { num: 40, suffix: '%', label: 'Faster ticket resolution' },
-            { num: 24, suffix: '/7', label: 'Instant order updates' }
+            { num: 40, suffix: '%', label: 'Faster ticket resolution' }
         ];
     } else if (window.location.pathname.includes('real-estate')) {
         statsData = [
-            { num: 1, suffix: 'm', label: 'Lead response time' },
-            { num: 60, suffix: '%', label: 'Higher lead conversion' },
+            { num: '< 1', suffix: 'm', label: 'Lead response time' },
+            { num: '3', suffix: 'x', label: 'Higher lead conversion' },
             { num: 100, suffix: '%', label: 'Inquiries captured instantly' }
         ];
+
     } else {
         return; // Not a known case study page
     }
@@ -2263,3 +2569,514 @@ function initCaseStudyMetrics() {
         }
     }, 100);
 }
+
+/* ── AMPLETECHAI ADDED RUNTIME ACTIONS ── */
+function initFutureStatsAnimation() {
+    const isHomepage = window.location.pathname === '/' || window.location.pathname === '/index.html' || window.location.pathname.endsWith('/index.html');
+    if (!isHomepage) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const valEl = entry.target;
+                if (valEl.classList.contains('animated')) return;
+                valEl.classList.add('animated');
+                
+                const target = parseFloat(valEl.getAttribute('data-target'));
+                const duration = 800; // 800ms
+                const startTime = performance.now();
+                
+                function update(now) {
+                    const elapsed = now - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const easeOut = 1 - Math.pow(1 - progress, 3);
+                    valEl.textContent = Math.floor(target * easeOut);
+                    
+                    if (progress < 1) requestAnimationFrame(update);
+                    else valEl.textContent = target;
+                }
+                requestAnimationFrame(update);
+                observer.unobserve(valEl);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.future-stat-val').forEach(el => {
+        observer.observe(el);
+    });
+}
+
+function initTeamProgressBars() {
+    const isAboutPage = window.location.pathname.includes('about-us');
+    if (!isAboutPage) return;
+
+    const cards = document.querySelectorAll('.framer-ywnt0a');
+    cards.forEach(card => {
+        const text = card.textContent;
+        let targetPercent = 0;
+        if (text.includes('Deon')) targetPercent = 92;
+        else if (text.includes('Basil')) targetPercent = 95;
+        else if (text.includes('Sneha')) targetPercent = 88;
+        else if (text.includes('Jissmon')) targetPercent = 90;
+        
+        if (targetPercent === 0) return;
+
+        const progressContainer = card.querySelector('.framer-1jtod8t-container');
+        if (!progressContainer) return;
+        
+        const progressbar = progressContainer.querySelector('[role="progressbar"]');
+        if (progressbar) {
+            const fills = Array.from(progressbar.children).map(child => child.querySelector('div')).filter(Boolean);
+            if (fills.length > 0) {
+                // Initialize all fills to 0%
+                fills.forEach(fill => {
+                    fill.style.width = '0%';
+                    fill.style.transition = 'width 1s cubic-bezier(0.16, 1, 0.3, 1)';
+                });
+                
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            progressbar.setAttribute('aria-valuenow', targetPercent);
+                            progressbar.setAttribute('aria-label', `Progress: ${targetPercent}%`);
+                            
+                            fills.forEach((fill, i) => {
+                                let fillPercent = 0;
+                                const segmentMin = i * 10;
+                                const segmentMax = segmentMin + 10;
+                                if (targetPercent >= segmentMax) {
+                                    fillPercent = 100;
+                                } else if (targetPercent <= segmentMin) {
+                                    fillPercent = 0;
+                                } else {
+                                    fillPercent = (targetPercent - segmentMin) * 10;
+                                }
+                                fill.style.width = `${fillPercent}%`;
+                            });
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                
+                observer.observe(card);
+            }
+        }
+    });
+}
+
+
+function initAboutProjectsStat() {
+    const isAboutPage = window.location.pathname.includes('about-us');
+    if (!isAboutPage) return;
+
+    const labelEl = Array.from(document.querySelectorAll('p')).find(p => p.textContent.trim() === 'Projects delivered');
+    if (labelEl && !labelEl.classList.contains('projects-stat-applied')) {
+        labelEl.classList.add('projects-stat-applied');
+        
+        const numBox = document.createElement('div');
+        numBox.className = 'about-projects-stat-box';
+        numBox.innerHTML = '<span class="about-projects-val" data-target="5">0</span><span class="about-projects-suffix">+</span>';
+        
+        numBox.style.fontSize = '3.5rem';
+        numBox.style.fontWeight = '700';
+        numBox.style.color = '#ffffff';
+        numBox.style.fontFamily = '"TASA Orbiter", sans-serif';
+        numBox.style.marginBottom = '8px';
+        
+        labelEl.parentNode.insertBefore(numBox, labelEl);
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const valEl = entry.target.querySelector('.about-projects-val');
+                    if (valEl.classList.contains('animated')) return;
+                    valEl.classList.add('animated');
+                    
+                    const target = parseFloat(valEl.getAttribute('data-target'));
+                    const duration = 1000;
+                    const startTime = performance.now();
+                    
+                    function update(now) {
+                        const elapsed = now - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        const easeOut = 1 - Math.pow(1 - progress, 3);
+                        valEl.textContent = Math.floor(target * easeOut);
+                        
+                        if (progress < 1) requestAnimationFrame(update);
+                        else valEl.textContent = target;
+                    }
+                    requestAnimationFrame(update);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        observer.observe(numBox);
+    }
+}
+
+function initFooterUpgrades() {
+    // 1. Upgrading Social links in footer
+    const socialHeaders = Array.from(document.querySelectorAll('p, span, div')).filter(el => {
+        return el.textContent.trim() === 'Social' && el.classList.contains('framer-text');
+    });
+    
+    socialHeaders.forEach(header => {
+        const column = header.closest('.framer-6snatm') || header.closest('[class*="Social"]') || header.parentElement.parentElement;
+        if (!column) return;
+        
+        const bottom = column.querySelector('.framer-3gtfn6') || column.querySelector('[class*="Bottom"]') || column.children[1];
+        if (!bottom) return;
+        
+        if (bottom.classList.contains('social-upgraded')) return;
+        bottom.classList.add('social-upgraded');
+        
+        bottom.innerHTML = '';
+        bottom.style.display = 'flex';
+        bottom.style.flexDirection = 'row';
+        bottom.style.flexWrap = 'wrap';
+        bottom.style.gap = '8px';
+        bottom.style.alignItems = 'center';
+        bottom.style.marginTop = '16px';
+        
+        const socials = [
+            { 
+                label: 'Instagram', 
+                url: 'https://www.instagram.com/ample.ai/',
+                icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>`
+            },
+            { 
+                label: 'Twitter/X', 
+                url: 'https://x.com/',
+                icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`
+            },
+            { 
+                label: 'LinkedIn', 
+                url: 'https://www.linkedin.com/',
+                icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>`
+            },
+            { 
+                label: 'YouTube', 
+                url: 'https://www.youtube.com/',
+                icon: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.518 3.545 12 3.545 12 3.545s-7.518 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.87.508 9.388.508 9.388.508s7.518 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>`
+            }
+        ];
+        
+        socials.forEach(s => {
+            const link = document.createElement('a');
+            link.href = s.url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.className = 'footer-social-badge';
+            link.innerHTML = `${s.icon} <span>${s.label}</span>`;
+            bottom.appendChild(link);
+        });
+    });
+
+    // 2. Upgrading Legal link in footer
+    const legalHeaders = Array.from(document.querySelectorAll('p, span, div')).filter(el => {
+        return el.textContent.trim() === 'Legal' && el.classList.contains('framer-text');
+    });
+    
+    legalHeaders.forEach(header => {
+        const column = header.closest('.framer-j93cv6') || header.closest('[class*="Legal"]') || header.parentElement.parentElement;
+        if (!column) return;
+        
+        const bottom = column.querySelector('.framer-7m7tab') || column.querySelector('[class*="Bottom"]') || column.children[1];
+        if (!bottom) return;
+        
+        if (bottom.classList.contains('legal-upgraded')) return;
+        bottom.classList.add('legal-upgraded');
+        
+        const depth = window.location.pathname.split('/').filter(Boolean).length;
+        const prefix = depth > 1 ? '../' : './';
+        
+        bottom.innerHTML = '';
+        bottom.className = 'footer-legal-container';
+        
+        const copyrightBadge = document.createElement('div');
+        copyrightBadge.className = 'footer-legal-badge';
+        copyrightBadge.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+            <span>© 2026 AmpletechAI Agency</span>
+        `;
+        bottom.appendChild(copyrightBadge);
+        
+        const privacyBadge = document.createElement('a');
+        privacyBadge.href = prefix + 'legal-pages/privacy-policy.html';
+        privacyBadge.className = 'footer-legal-badge link';
+        privacyBadge.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span>Privacy Policy</span>
+        `;
+        bottom.appendChild(privacyBadge);
+    });
+}
+
+
+function initTestimonialArrows() {
+    const containers = document.querySelectorAll('.framer-f606e8-container');
+    if (containers.length === 0) return;
+    
+    const trackParents = document.querySelectorAll('.framer-ze9bgm');
+    if (trackParents.length === 0) return;
+    
+    const totalTestimonials = trackParents[0].children.length;
+    
+    // Check if initialized to avoid duplicate click handlers
+    if (window.testimonialArrowsInitialized) {
+        // Just make sure arrows are present
+        containers.forEach(container => {
+            if (!container.querySelector('.testimonial-nav-arrows')) {
+                injectArrows(container);
+            }
+        });
+        return;
+    }
+    window.testimonialArrowsInitialized = true;
+
+    containers.forEach(container => {
+        if (!container.querySelector('.testimonial-nav-arrows')) {
+            injectArrows(container);
+        }
+    });
+
+    function injectArrows(container) {
+        const nav = document.createElement('div');
+        nav.className = 'testimonial-nav-arrows';
+        
+        const disabledAttr = totalTestimonials <= 1 ? 'disabled' : '';
+        nav.innerHTML = `
+            <button class="testimonial-arrow-btn prev" ${disabledAttr} aria-label="Previous testimonial">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+            </button>
+            <button class="testimonial-arrow-btn next" ${disabledAttr} aria-label="Next testimonial">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </button>
+        `;
+        
+        container.appendChild(nav);
+        
+        if (totalTestimonials > 1) {
+            const prevBtn = nav.querySelector('.prev');
+            const nextBtn = nav.querySelector('.next');
+            
+            prevBtn.addEventListener('click', () => {
+                navigateTestimonials(-1);
+            });
+            nextBtn.addEventListener('click', () => {
+                navigateTestimonials(1);
+            });
+        }
+    }
+
+    function navigateTestimonials(direction) {
+        currentTestimonialIndex = (currentTestimonialIndex + direction + totalTestimonials) % totalTestimonials;
+        updateTestimonialDisplay();
+    }
+
+    function updateTestimonialDisplay() {
+        trackParents.forEach(parent => {
+            const children = Array.from(parent.children);
+            children.forEach((child, index) => {
+                if (index === currentTestimonialIndex) {
+                    child.style.display = 'block';
+                    child.style.opacity = '0';
+                    child.style.transition = 'opacity 0.4s ease';
+                    // Trigger reflow
+                    child.offsetHeight;
+                    child.style.opacity = '1';
+                } else {
+                    child.style.display = 'none';
+                    child.style.opacity = '0';
+                }
+            });
+        });
+    }
+
+    updateTestimonialDisplay();
+}
+
+
+function initWhyDelayHurtsCounters() {
+    const pills = document.querySelectorAll('.wdh-pill');
+    if (pills.length === 0) return;
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const pill = entry.target;
+                if (pill.classList.contains('animated')) return;
+                pill.classList.add('animated');
+                
+                const target = parseInt(pill.getAttribute('data-target') || '0', 10);
+                const duration = 1000;
+                const startTime = performance.now();
+                
+                function update(now) {
+                    const elapsed = now - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const easeOut = 1 - Math.pow(1 - progress, 3);
+                    pill.textContent = '+' + Math.floor(target * easeOut) + '%';
+                    if (progress < 1) requestAnimationFrame(update);
+                    else pill.textContent = '+' + target + '%';
+                }
+                requestAnimationFrame(update);
+                observer.unobserve(pill);
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    pills.forEach(pill => observer.observe(pill));
+}
+
+function looseMatch(text, searchStr) {
+    const cleanedText = text.toLowerCase().replace(/[^a-z]/g, '');
+    const cleanedSearch = searchStr.toLowerCase().replace(/[^a-z]/g, '');
+    return cleanedText.includes(cleanedSearch);
+}
+
+function patchRelatedProjectsLinks() {
+    document.querySelectorAll('a').forEach(anchor => {
+        const text = anchor.textContent || '';
+        if (looseMatch(text, 'Lead Followup Automation') || looseMatch(text, 'Lead Followup')) {
+            anchor.href = `${getRelativePathPrefix()}case-studies/real-estate-lead-automation.html`;
+            anchor.querySelectorAll('img').forEach(img => {
+                img.src = 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&q=80&w=800';
+                img.removeAttribute('srcset');
+                img.setAttribute('data-case-study', 'realestate');
+            });
+        } else if (looseMatch(text, 'AI Support Assistant MVP') || looseMatch(text, 'Support Assistant')) {
+            anchor.href = `${getRelativePathPrefix()}case-studies/ecommerce-support-assistant.html`;
+            anchor.querySelectorAll('img').forEach(img => {
+                img.src = 'https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80&w=800';
+                img.removeAttribute('srcset');
+                img.setAttribute('data-case-study', 'ecommerce');
+            });
+        } else if (looseMatch(text, 'AI Voice Receptionist') || looseMatch(text, 'Voice Receptionist')) {
+            anchor.href = `${getRelativePathPrefix()}case-studies/dental-clinic-voice-receptionist.html`;
+            anchor.querySelectorAll('img').forEach(img => {
+                img.src = 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=800';
+                img.removeAttribute('srcset');
+                img.setAttribute('data-case-study', 'dental');
+            });
+        }
+    });
+}
+
+function patchMoreProjectsTableRows() {
+    document.querySelectorAll('a').forEach(anchor => {
+        const text = anchor.textContent || '';
+        const href = anchor.getAttribute('href') || '';
+        
+        // Match table rows in the projects table on the homepage
+        const isTableRow = (href.includes('case-studies') || href.includes('case-study')) && 
+                           text.includes('2026') && 
+                           anchor.querySelector('img');
+                           
+        if (looseMatch(text, 'View full case study') || looseMatch(text, 'View case study') || isTableRow) {
+            anchor.querySelectorAll('img').forEach(img => {
+                const isViewCaseStudy = looseMatch(text, 'View full case study') || looseMatch(text, 'View case study');
+                const src = img.getAttribute('src') || '';
+                
+                // For table rows, bypass the blacklist check so the thumbnail gets replaced
+                if (isTableRow || (isViewCaseStudy && !src.includes('case-study') && !src.includes('realestate') && !src.includes('dental') && !src.includes('ecommerce'))) {
+                    img.style.display = 'none';
+                    if (isTableRow) {
+                        if (!img.parentNode.querySelector('.table-redirect-arrow-wrapper')) {
+                            const wrapper = document.createElement('div');
+                            wrapper.className = 'table-redirect-arrow-wrapper';
+                            wrapper.style.display = 'inline-flex';
+                            wrapper.style.alignItems = 'center';
+                            wrapper.style.justifyContent = 'center';
+                            wrapper.style.width = '14px';
+                            wrapper.style.height = '14px';
+                            wrapper.style.marginLeft = '8px';
+                            wrapper.style.verticalAlign = 'middle';
+                            wrapper.innerHTML = `
+                                <svg viewBox="0 0 14 14" fill="#0D0D0D" style="width: 14px; height: 14px; display: block; transition: transform 0.2s ease;">
+                                  <path d="m11.093 3.637-9.587 9.587L0 11.717 9.587 2.13h-8.08V0h11.717v11.717h-2.13v-8.08Z"></path>
+                                </svg>
+                            `;
+                            img.parentNode.insertBefore(wrapper, img);
+                        }
+                    } else {
+                        if (!img.parentNode.querySelector('.animated-arrow-wrapper')) {
+                            const wrapper = document.createElement('div');
+                            wrapper.className = 'animated-arrow-wrapper';
+                            wrapper.innerHTML = `
+                                <svg viewBox="0 0 24 24" class="animated-arrow-svg" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                                  <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            `;
+                            img.parentNode.insertBefore(wrapper, img);
+                        }
+                    }
+                }
+            });
+        }
+    });
+}
+
+function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        // Register sw.js relative to host root
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => {
+                console.log('[AmpletechAI] ServiceWorker registered scope:', reg.scope);
+                // Auto-reload the page when an update is found and installed
+                reg.onupdatefound = () => {
+                    const installingWorker = reg.installing;
+                    if (installingWorker) {
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed') {
+                                if (navigator.serviceWorker.controller) {
+                                    console.log('[AmpletechAI] New version installed, reloading page...');
+                                    window.location.reload();
+                                }
+                            }
+                        };
+                    }
+                };
+            })
+            .catch(err => console.warn('[AmpletechAI] ServiceWorker failed:', err));
+    }
+}
+
+function fixAccessibilityDuplications() {
+    const elements = document.querySelectorAll('span[style*="grid-auto-rows: 1em"], span[style*="grid-auto-rows:1em"]');
+    elements.forEach(el => {
+        if (el.children.length === 2) {
+            const child1 = el.children[0];
+            const child2 = el.children[1];
+            if (child1.textContent.trim() === child2.textContent.trim()) {
+                child2.setAttribute('aria-hidden', 'true');
+            }
+        }
+    });
+}
+
+function removeCaseStudyDateRow() {
+    document.querySelectorAll('p').forEach(p => {
+        const text = p.textContent || '';
+        if (text.trim() === 'Nov 6, 2025' || text.trim() === 'Date:') {
+            const row = p.closest('[data-framer-name="Boxed - Desktop"], [data-framer-name="Boxed - Phone"], [data-framer-name="Boxed - Tablet"], .framer-mirVO');
+            if (row) {
+                row.style.setProperty('display', 'none', 'important');
+                row.setAttribute('aria-hidden', 'true');
+            } else {
+                p.style.setProperty('display', 'none', 'important');
+            }
+        }
+    });
+}
+
+
+

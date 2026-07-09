@@ -1101,6 +1101,17 @@ body.ampleai-menu-open {
   background: rgba(255, 255, 255, 0.08);
 }
 
+.showcase-timeline-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0px;
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 4px rgba(255, 255, 255, 0.4);
+  border-radius: inherit;
+}
+
 .showcase-timeline-dot {
   position: absolute;
   left: -4px;
@@ -1109,7 +1120,7 @@ body.ampleai-menu-open {
   height: 10px;
   border-radius: 50%;
   background: #ffffff;
-  box-shadow: 0 0 15px rgba(0, 153, 255, 0.8), 0 0 6px rgba(0, 153, 255, 0.4);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.9), 0 0 6px rgba(255, 255, 255, 0.5);
   z-index: 5;
 }
 
@@ -3158,4 +3169,609 @@ div#main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-t
     max-height: 500px;
     opacity: 1;
   }
+}
+
+
+/* ==========================================================================
+   AMPLETECHAI CUSTOM TWEAKS & UPGRADES
+   ========================================================================== */
+
+/* ── SMOOTH SCROLL (Lenis-based) ── */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ── NAVIGATION MENU DRAWER UPDATES ── */
+#ampleai-menu-body {
+  display: grid !important;
+  grid-template-columns: 1fr 1.2fr 1fr !important;
+  gap: 0 !important;
+  height: calc(100% - 80px) !important;
+}
+
+#ampleai-menu-left {
+  padding-right: 40px !important;
+}
+
+#ampleai-menu-middle {
+  border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding: 0 40px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+}
+
+#ampleai-menu-right {
+  padding-left: 40px !important;
+}
+
+.menu-quick-stats, .menu-socials {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.menu-quick-stats h4, .menu-socials h4 {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+  letter-spacing: 2px !important;
+  margin-bottom: 20px !important;
+  text-transform: uppercase !important;
+}
+
+.menu-stat-pill {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  padding: 14px 20px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 12px !important;
+  margin-bottom: 12px !important;
+  text-decoration: none !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.menu-stat-pill:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-2px) !important;
+}
+
+.menu-stat-pill .stat-num {
+  font-family: 'TASA Orbiter', sans-serif !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+}
+
+.menu-stat-pill .stat-lbl {
+  font-family: 'Geist', sans-serif !important;
+  font-size: 13px !important;
+  color: #a3a3a3 !important;
+}
+
+.menu-social-links-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+}
+
+.menu-social-link {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 13px !important;
+  color: #a3a3a3 !important;
+  text-decoration: none !important;
+  transition: color 0.3s ease !important;
+}
+
+.menu-social-link:hover {
+  color: #ffffff !important; /* white hover */
+}
+
+@media (max-width: 900px) {
+  #ampleai-menu-body {
+    grid-template-columns: 1fr !important;
+    overflow-y: auto !important;
+    gap: 40px !important;
+  }
+  #ampleai-menu-middle {
+    border-left: none !important;
+    border-right: none !important;
+    padding: 40px 0 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+  #ampleai-menu-left, #ampleai-menu-right {
+    padding: 0 !important;
+  }
+}
+
+/* ── CORE PILLARS SHOWCASE UPDATES ── */
+.showcase-step-item {
+  position: relative !important;
+  border-left: 2px solid rgba(255, 255, 255, 0.1) !important;
+  padding-left: 16px !important;
+  opacity: 0.3 !important;
+  transition: opacity 0.4s ease, border-left-color 0.4s ease, padding-left 0.4s ease !important;
+  cursor: pointer !important;
+}
+
+.showcase-step-item.active {
+  opacity: 1 !important;
+  border-left-color: #ffffff !important; /* white accent */
+}
+
+.showcase-step-item.active .showcase-step-title {
+  color: #ffffff !important;
+}
+
+.showcase-step-item:not(.active) .showcase-step-title {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Progress bar under active left item */
+.showcase-step-item.active::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -10px !important;
+  left: 16px !important;
+  height: 2px !important;
+  background-color: #00f2fe !important;
+  animation: showcaseProgress 4s linear forwards !important;
+}
+
+@keyframes showcaseProgress {
+  from { width: 0; }
+  to { width: calc(100% - 16px); }
+}
+
+/* ── FUTURE OF WORK STAT VALUES ── */
+.future-stat-num-box {
+  display: block !important;
+  font-family: 'TASA Orbiter', sans-serif !important;
+  font-size: 3rem !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  margin-bottom: 8px !important;
+  z-index: 10 !important;
+  position: relative !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.future-stat-label {
+  display: block !important;
+  font-size: 1rem !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.framer-1yqdwa7 {
+  width: 1px !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  height: 80px !important;
+  display: block !important;
+  margin: 0 40px !important;
+}
+
+/* ── TESTIMONIAL NAVIGATION ARROWS ── */
+.testimonial-nav-arrows {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 16px !important;
+  margin-top: 24px !important;
+  width: 100% !important;
+  z-index: 10 !important;
+  position: relative !important;
+}
+
+.testimonial-arrow-btn {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: rgba(255, 255, 255, 0.3) !important; /* dimmed */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  transition: all 0.3s ease !important;
+}
+
+/* ── MOBILE MENU SCROLL LOCK ── */
+body.ampleai-menu-open {
+  overflow: hidden !important;
+  height: 100vh !important;
+}
+
+/* ── CASE STUDIES COLLAGE CORRECTION ── */
+.framer-14zgcay {
+  overflow: visible !important;
+  display: block !important;
+  position: relative !important;
+  width: 100% !important;
+  height: 400px !important;
+  margin-top: 40px !important;
+}
+
+.framer-1on0omz {
+  transform: rotate(-5deg) translate(-25px, -15px) !important;
+  z-index: 5 !important;
+}
+
+.framer-gec9hg {
+  transform: rotate(4deg) translate(30px, -5px) !important;
+  z-index: 4 !important;
+}
+
+.framer-17fvr9n {
+  transform: rotate(-1deg) translate(-10px, 15px) !important;
+  z-index: 3 !important;
+}
+
+.framer-11tnjoh {
+  transform: rotate(7deg) translate(15px, 20px) !important;
+  z-index: 2 !important;
+}
+
+/* ── TECH STACK LOGOS ── */
+.tech-logo {
+  height: 24px !important;
+  width: auto !important;
+  vertical-align: middle !important;
+  margin-right: 8px !important;
+  display: inline-block !important;
+}
+
+/* ── Process Section Wavy Progress Bar & Divider Overrides ── */
+#process [data-framer-name="Divider"],
+#process .framer-18c0luw,
+#process .framer-6bm9ry,
+#process .framer-1deibwz,
+#process .framer-4tkv0l {
+  display: none !important;
+}
+
+@media (max-width: 1199.98px) {
+  .process-wavy-svg {
+    display: none !important;
+  }
+}
+
+/* ── Live CSS-Animated Arrow Icons (Image 3) ── */
+.animated-arrow-wrapper {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 20px !important;
+  height: 20px !important;
+  margin-left: 8px !important;
+  vertical-align: middle !important;
+}
+
+.animated-arrow-svg {
+  width: 16px !important;
+  height: 16px !important;
+  stroke: currentColor !important;
+  animation: slideArrowContinuous 1.4s infinite ease-in-out !important;
+}
+
+@keyframes slideArrowContinuous {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* ── Hero & What We Build Transition & Layer Fixes (Image 4) ── */
+.showcase-scroll-container {
+  z-index: 10 !important;
+  background: #000000 !important;
+}
+
+.showcase-outer-wrapper {
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+.pin-spacer {
+  background-color: #000000 !important;
+}
+
+/* Force hardware accelerated layers to completely eliminate split-second white flashing */
+.showcase-sticky-wrapper,
+.showcase-left-col,
+.showcase-right-col {
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+}
+
+/* ── Testimonial Card Enlargement Override ── */
+#testimonials .framer-dv9xz {
+  background: rgb(13, 13, 13) !important;
+  height: auto !important;
+  min-height: 480px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  padding: 40px !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+#testimonials .framer-1if0fxq {
+  height: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+}
+
+#testimonials .framer-19e2w0y {
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  margin-top: 24px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: auto !important;
+}
+
+#testimonials .framer-1hw437h,
+#testimonials .framer-1frlo89 {
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#testimonials .framer-225eq8 {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+#testimonials [data-framer-name="Profile Info"] h2 {
+  color: #ffffff !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  margin-bottom: 4px !important;
+  text-align: center !important;
+}
+
+#testimonials [data-framer-name="Job Title"] p {
+  color: #a3a3a3 !important;
+  font-size: 14px !important;
+  text-align: center !important;
+}
+
+
+/* ── Restored and Black-and-White Themed Navigation Menu Custom Styles ── */
+
+.menu-logo-showcase {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.05), rgba(13, 13, 13, 0.8));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.menu-logo-showcase-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 70%);
+  transform: translate(-50%, -50%);
+  filter: blur(20px);
+  pointer-events: none;
+}
+
+.menu-showcase-logo {
+  height: 64px;
+  width: auto;
+  object-fit: contain;
+  z-index: 1;
+  opacity: .95;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.menu-logo-showcase:hover .menu-showcase-logo {
+  transform: scale(1.08) rotate(3deg);
+}
+
+.menu-about-btn {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: #ffffff !important;
+  color: #0d0d0d !important;
+  border-radius: 12px;
+  text-decoration: none;
+  font-family: 'Geist', sans-serif !important;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-bottom: auto;
+}
+
+.menu-about-btn:hover {
+  background: #ffffff !important;
+  color: #0d0d0d !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.25);
+}
+
+.menu-right-footer {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Hide the location/coords as requested by user */
+.menu-right-coords {
+  display: none !important;
+}
+
+.menu-right-contact {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 20px;
+}
+
+.menu-contact-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.menu-contact-item .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 1px;
+}
+
+.menu-contact-item .val {
+  font-family: 'Geist', sans-serif;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85) !important;
+  text-decoration: none;
+  transition: color .2s;
+  font-weight: 500;
+}
+
+.menu-contact-item .val:hover {
+  color: #ffffff !important;
+}
+
+.footer-social-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 16px !important;
+  border-radius: 20px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: #a3a3a3 !important;
+  font-family: 'Geist', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.footer-social-badge:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.15) !important;
+}
+
+.footer-social-badge svg {
+  transition: transform .3s ease !important;
+}
+
+.footer-social-badge:hover svg {
+  transform: scale(1.1) !important;
+}
+
+.footer-legal-container {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  margin-top: 16px !important;
+  align-items: flex-start !important;
+}
+
+.footer-legal-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 16px !important;
+  border-radius: 20px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: #a3a3a3 !important;
+  font-family: 'Geist', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.footer-legal-badge.link {
+  cursor: pointer !important;
+}
+
+.footer-legal-badge.link:hover {
+  background: rgba(255, 255, 255, 0.09) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ── Table Row Up-Right Arrow Hover micro-interaction ── */
+a:hover .table-redirect-arrow-wrapper svg {
+  transform: translate(2px, -2px) !important;
+}
+
+/* Fix redirect arrow color to prevent inheriting default link blue/visited purple */
+.table-redirect-arrow-wrapper,
+.table-redirect-arrow-wrapper svg,
+a .table-redirect-arrow-wrapper svg,
+a:hover .table-redirect-arrow-wrapper svg,
+a:visited .table-redirect-arrow-wrapper svg {
+  color: #0D0D0D !important;
+  fill: #0D0D0D !important;
 }
