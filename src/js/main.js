@@ -830,6 +830,15 @@ function wireHamburger() {
 function openMenu() {
     const d = document.getElementById('ampleai-menu-drawer');
     if (!d) return;
+    
+    // Compensate scrollbar width to prevent layout jump
+    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+    if (scrollBarWidth > 0) {
+        document.body.style.paddingRight = `${scrollBarWidth}px`;
+        const header = document.querySelector('header');
+        if (header) header.style.paddingRight = `${scrollBarWidth}px`;
+    }
+
     document.body.classList.add('ampleai-menu-open');
     document.body.style.overflow = 'hidden';
     document.body.style.overflowY = 'hidden';
@@ -849,9 +858,14 @@ function openMenu() {
 function closeMenu() {
     const d = document.getElementById('ampleai-menu-drawer');
     if (!d) return;
+    
     document.body.classList.remove('ampleai-menu-open');
     document.body.style.overflow = '';
     document.body.style.overflowY = '';
+    document.body.style.paddingRight = '';
+    const header = document.querySelector('header');
+    if (header) header.style.paddingRight = '';
+    
     if (window.__lenis) window.__lenis.start();
     
     d.setAttribute('aria-hidden', 'true');
@@ -926,39 +940,7 @@ function initProcessReveal() {
         tl.to({}, { duration: 0.3 });
     });
 
-    // Mobile/Tablet: Single-column normal scroll reveals
-    mm.add("(max-width: 1199.98px)", () => {
-        const containers = [
-            '.framer-9hd1tq-container',
-            '.framer-sb1e2m-container',
-            '.framer-1qzupzc-container',
-            '.framer-sc5l4v-container'
-        ];
-
-        containers.forEach(sel => {
-            const elements = document.querySelectorAll(sel);
-            elements.forEach(card => {
-                const parent = card.closest('.ssr-variant');
-                if (parent && window.getComputedStyle(parent).display === 'none') return;
-
-                // Ensure initial visible state on mobile since they flow vertically
-                gsap.set(card, { opacity: 0, y: 50, scale: 0.95 });
-
-                gsap.to(card, {
-                    opacity: 1,
-                    y: 0,
-                    scale: 1,
-                    duration: 0.8,
-                    ease: "power2.out",
-                    scrollTrigger: {
-                        trigger: card,
-                        start: "top 85%",
-                        toggleActions: "play none none none"
-                    }
-                });
-            });
-        });
-    });
+    // Mobile/Tablet: Single-column natural vertical layout is fully handled statically via CSS overrides
 
     console.log('[AmpleAI] ✓ Process step reveals initialized');
 }
@@ -3052,13 +3034,16 @@ function registerServiceWorker() {
 }
 
 function fixAccessibilityDuplications() {
-    const elements = document.querySelectorAll('span[style*="grid-auto-rows: 1em"], span[style*="grid-auto-rows:1em"]');
+    const elements = document.querySelectorAll('span[style*="grid"], span[style*="Grid"]');
     elements.forEach(el => {
-        if (el.children.length === 2) {
-            const child1 = el.children[0];
-            const child2 = el.children[1];
-            if (child1.textContent.trim() === child2.textContent.trim()) {
-                child2.setAttribute('aria-hidden', 'true');
+        const style = el.getAttribute('style') || '';
+        if (style.includes('grid-auto-rows') || style.includes('display:grid') || style.includes('display: grid')) {
+            if (el.children.length === 2 && el.children[0].tagName === 'SPAN' && el.children[1].tagName === 'SPAN') {
+                const child1 = el.children[0];
+                const child2 = el.children[1];
+                if (child1.textContent.trim() === child2.textContent.trim() && child1.textContent.trim().length === 1) {
+                    child2.setAttribute('aria-hidden', 'true');
+                }
             }
         }
     });

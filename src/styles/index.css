@@ -3284,16 +3284,27 @@ html.lenis, html.lenis body {
     grid-template-columns: 1fr !important;
     overflow-y: auto !important;
     gap: 40px !important;
+    height: calc(100vh - 72px) !important;
+    padding-bottom: 60px !important;
+  }
+  #ampleai-menu-left {
+    height: auto !important;
+    justify-content: flex-start !important;
+    overflow: visible !important;
+    padding: 20px !important;
+  }
+  #ampleai-menu-links {
+    padding: 20px 0 !important;
   }
   #ampleai-menu-middle {
     border-left: none !important;
     border-right: none !important;
-    padding: 40px 0 !important;
+    padding: 40px 20px !important;
     border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
   }
-  #ampleai-menu-left, #ampleai-menu-right {
-    padding: 0 !important;
+  #ampleai-menu-right {
+    padding: 20px !important;
   }
 }
 
@@ -3901,6 +3912,7 @@ section {
 
 /* Form widths and layout alignment on small screens */
 @media (max-width: 809.98px) {
+  form,
   form.framer-jyaash,
   form.framer-9on65k,
   .framer-vxmtgk form {
@@ -3909,13 +3921,48 @@ section {
     box-sizing: border-box !important;
   }
   
-  .framer-jyaash label,
-  .framer-jyaash input,
-  .framer-jyaash textarea,
-  .framer-jyaash select {
+  form label,
+  form input,
+  form textarea,
+  form select,
+  form button {
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────
+   FINAL PRODUCTION CALIBRATION & OVERFLOW FIXES
+   ────────────────────────────────────────────────────────── */
+
+/* Prevent scrollbar layout jump */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Specific section clipping to contain horizontal overflow without breaking vertical sticky positioning */
+#hero,
+#stats,
+#testimonials,
+#footer,
+section.framer-17rykba,
+section.framer-p6ecc7,
+section.framer-evw9i6,
+section.framer-1cjdb81-container,
+footer.ssr-variant {
+  overflow-x: clip !important;
+}
+
+/* Mobile & Tablet Process Section Stabilization: Force cards visible */
+@media (max-width: 1199.98px) {
+  .framer-9hd1tq-container,
+  .framer-sb1e2m-container,
+  .framer-1qzupzc-container,
+  .framer-sc5l4v-container {
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
   }
 }
 
