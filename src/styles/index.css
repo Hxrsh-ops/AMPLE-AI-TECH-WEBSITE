@@ -3813,3 +3813,110 @@ a:visited .table-redirect-arrow-wrapper svg {
   transform: none !important;
 }
 
+/* ─────────────────────────────────────────────────────────
+   PRODUCTION HARDENING & RESPONSIVE CALIBRATION OVERRIDES
+   ───────────────────────────────────────────────────────── */
+
+/* 1. Homepage Hero Robot Repositioning & Scale (Bug 1) */
+@media (min-width: 1200px) {
+  .framer-zSbuN .framer-1dr2fdp {
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    right: 2% !important;
+    left: auto !important;
+    height: auto !important;
+    width: 42vw !important;
+    max-width: 750px !important;
+    aspect-ratio: 1.1111111111111112 !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+  }
+}
+
+@media (min-width: 810px) and (max-width: 1199.98px) {
+  .framer-zSbuN .framer-1dr2fdp {
+    position: absolute !important;
+    bottom: -30px !important;
+    right: -30px !important;
+    top: auto !important;
+    transform: none !important;
+    height: auto !important;
+    width: 38vw !important;
+    max-width: 450px !important;
+    aspect-ratio: 1.1111111111111112 !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+  }
+}
+
+/* 2. Stats Section Root-Cause Clipping Fix (Bug 2) */
+.framer-pw673, 
+.framer-1bzr4nu, 
+.framer-1jeik2n, 
+.framer-evw9i6, 
+.framer-1q3dow0,
+.framer-1avw3g1-container, 
+.framer-bpxa1b-container, 
+.framer-1923jj4-container, 
+.framer-1cjdb81-container, 
+.framer-bt341e-container,
+.framer-aXILQ.framer-p6ecc7 {
+  height: auto !important;
+  min-height: 130px !important;
+  overflow: visible !important;
+}
+
+.framer-aXILQ.framer-p6ecc7 {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+}
+
+.framer-aXILQ.framer-p6ecc7 span,
+.framer-aXILQ.framer-p6ecc7 p {
+  line-height: 1.3 !important;
+}
+
+/* 3. Force all footer main links arrow icons to remain always visible (Bug 3) */
+.framer-1iko3jd-container .framer-ap8mo7 {
+  width: 10px !important;
+  height: 10px !important;
+  opacity: 1 !important;
+}
+
+/* 4. General Mobile Responsive Stabilization & Spacing (Bug 4) */
+#main {
+  width: 100% !important;
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+  position: relative !important;
+}
+
+section {
+  width: 100% !important;
+  max-width: 100vw !important;
+  box-sizing: border-box !important;
+}
+
+/* Form widths and layout alignment on small screens */
+@media (max-width: 809.98px) {
+  form.framer-jyaash,
+  form.framer-9on65k,
+  .framer-vxmtgk form {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  .framer-jyaash label,
+  .framer-jyaash input,
+  .framer-jyaash textarea,
+  .framer-jyaash select {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+
