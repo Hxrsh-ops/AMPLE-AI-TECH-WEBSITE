@@ -3794,12 +3794,12 @@ a:visited .table-redirect-arrow-wrapper svg {
     bottom: -282px !important;
     top: auto !important;
     transform: none !important;
-    /* right: 7vw horizontally centers robot head in the AMPLIFY / AI'S gap
-       (container right edge=1382px, gap center=834px, half-width=446px → 1382-834-446=102px≈7vw) */
-    right: 7vw !important;
+    /* right: 1vw horizontally centers robot head in the AMPLIFY / AI'S gap
+       (container right edge=1382px, gap center=834px, half-width=532px → 1382-834-532=16px≈1vw) */
+    right: 1vw !important;
     left: auto !important;
-    /* width: 62vw gives robot height ~804px, placing head at ~300px (within text band) */
-    width: 62vw !important;
+    /* width: 74vw gives robot height ~959px, placing head top at ~145px (at AMPLIFY text level) */
+    width: 74vw !important;
     max-width: none !important;
     height: auto !important;
     aspect-ratio: 1.1111111111111112 !important;
