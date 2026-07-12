@@ -818,13 +818,48 @@ function buildAndInjectMenu() {
 }
 
 function wireHamburger() {
-    document.querySelectorAll('.framer-kl0AZ').forEach(h => {
+    const elements = new Set();
+    const selectors = [
+        '[data-framer-name="Menu-Trigger"]',
+        '[data-framer-name="Hamburger"]',
+        '[data-framer-name="Default - Phone"]',
+        '[data-framer-name="White - Phone"]',
+        '[data-framer-name="Dark - Phone"]',
+        '.framer-kl0AZ',
+        '.framer-rz9Uk'
+    ];
+    selectors.forEach(sel => {
+        document.querySelectorAll(sel).forEach(el => elements.add(el));
+    });
+
+    const textElements = document.querySelectorAll('nav p, nav span, header p, header span');
+    textElements.forEach(el => {
+        if (el.textContent.trim().toLowerCase() === 'menu') {
+            const clickableParent = el.closest('[tabindex="0"], [data-border="true"], [data-highlight="true"], a, div[class*="-Phone"]');
+            if (clickableParent) {
+                elements.add(clickableParent);
+            } else {
+                elements.add(el);
+            }
+        }
+    });
+
+    elements.forEach(h => {
         h.style.cursor = 'pointer';
         h.setAttribute('role', 'button');
         h.setAttribute('tabindex', '0');
+        h.removeEventListener('click', openMenu);
         h.addEventListener('click', openMenu);
-        h.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openMenu(); });
+        h.removeEventListener('keydown', handleHamburgerKeydown);
+        h.addEventListener('keydown', handleHamburgerKeydown);
     });
+}
+
+function handleHamburgerKeydown(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openMenu();
+    }
 }
 
 function openMenu() {
@@ -882,65 +917,36 @@ function closeMenu() {
 function initProcessReveal() {
     if (!window.gsap || !window.ScrollTrigger) return;
 
-    const mm = gsap.matchMedia();
+    const cards = [
+        '.framer-9hd1tq-container',
+        '.framer-sb1e2m-container',
+        '.framer-1qzupzc-container',
+        '.framer-sc5l4v-container'
+    ];
 
-    // Helper to find the active element (desktop vs mobile)
-    const getActiveEl = (selector) => {
-        const elements = document.querySelectorAll(selector);
-        for (let el of elements) {
-            const parent = el.closest('.ssr-variant');
-            if (parent && window.getComputedStyle(parent).display !== 'none') {
-                return el;
-            }
-        }
-        return elements[0];
-    };
+    cards.forEach(sel => {
+        const elements = document.querySelectorAll(sel);
+        elements.forEach(card => {
+            const parent = card.closest('.ssr-variant');
+            if (parent && window.getComputedStyle(parent).display === 'none') return;
 
-    // Desktop: Pin and stack cards sequentially
-    mm.add("(min-width: 1200px)", () => {
-        const stepsContainer = document.querySelector('.framer-ly6508');
-        if (!stepsContainer) return;
+            // Simple, beautiful, and extremely stable scroll reveal animation
+            gsap.set(card, { opacity: 0, y: 50, scale: 0.98 });
 
-        const card1 = getActiveEl('.framer-9hd1tq-container');
-        const card2 = getActiveEl('.framer-sb1e2m-container');
-        const card3 = getActiveEl('.framer-1qzupzc-container');
-        const card4 = getActiveEl('.framer-sc5l4v-container');
-
-        if (!card1 || !card2 || !card3 || !card4) return;
-
-        // Reset any inline styles first to prevent conflicts
-        gsap.killTweensOf([card1, card2, card3, card4]);
-
-        // Card 1 starts visible (Step 1). Cards 2, 3, 4 start hidden and scaled down.
-        gsap.set(card1, { opacity: 1, scale: 1, y: 0 });
-        gsap.set([card2, card3, card4], { opacity: 0, scale: 0.9, y: 80 });
-
-        const tl = gsap.timeline({
-            scrollTrigger: {
-                trigger: stepsContainer,
-                start: "top 270px",          // Align with CSS top: 270px sticky offset
-                end: "bottom 620px",         // Duration maps to the native scroll height of the container
-                scrub: 1,                    // Smooth scrub tied to scroll velocity
-                invalidateOnRefresh: true
-            }
+            gsap.to(card, {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                duration: 0.6,
+                ease: "power2.out",
+                scrollTrigger: {
+                    trigger: card,
+                    start: "top 90%",
+                    toggleActions: "play none none none"
+                }
+            });
         });
-
-        // 1. Reveal Step 2 (Card 2) on the right
-        tl.to(card2, { opacity: 1, scale: 1, y: 0, duration: 1, ease: "power2.out" });
-
-        // 2. Dim Step 1 (Card 1) and overlap Step 3 (Card 3) on the left
-        tl.to(card1, { opacity: 0.25, scale: 0.96, duration: 0.5, ease: "power2.out" }, "+=0.3")
-          .to(card3, { opacity: 1, scale: 1, y: 0, duration: 1, ease: "power2.out" }, "<");
-
-        // 3. Dim Step 2 (Card 2) and overlap Step 4 (Card 4) on the right
-        tl.to(card2, { opacity: 0.25, scale: 0.96, duration: 0.5, ease: "power2.out" }, "+=0.3")
-          .to(card4, { opacity: 1, scale: 1, y: 0, duration: 1, ease: "power2.out" }, "<");
-          
-        // Add a small pause at the end for user convenience
-        tl.to({}, { duration: 0.3 });
     });
-
-    // Mobile/Tablet: Single-column natural vertical layout is fully handled statically via CSS overrides
 
     console.log('[AmpleAI] ✓ Process step reveals initialized');
 }
@@ -1485,76 +1491,88 @@ function initWhatWeBuildInteractions() {
         }
     }, 100);
 
-    // Timeline mapping scroll scrub to step activation
-    const tl = gsap.timeline({
-        scrollTrigger: {
-            id: "showcase-scroll",
-            trigger: ".showcase-scroll-container",
-            start: "top top",
-            end: "+=3200",
-            scrub: 0.3,
-            pin: true,
-            anticipatePin: 1,
-            onUpdate: (self) => {
-                const step = Math.min(totalSteps, Math.max(1, Math.round(self.progress * (totalSteps - 1)) + 1));
-                if (currentStep !== step) {
-                    currentStep = step;
-                    
-                    document.querySelectorAll('.showcase-step-item').forEach(item => {
-                        item.classList.toggle('active', parseInt(item.getAttribute('data-step')) === step);
-                    });
-                    
-                    document.querySelectorAll('.showcase-panel').forEach(panel => {
-                        panel.classList.toggle('active', parseInt(panel.getAttribute('data-panel')) === step);
-                    });
-                    
-                    document.querySelectorAll('.showcase-dot').forEach(dot => {
-                        dot.classList.toggle('active', parseInt(dot.getAttribute('data-dot')) === step);
-                    });
-                }
-                
-                // Smoothly update the progress bar and dot position
-                const targetY = getSmoothYForProgress(self.progress);
-                const progressEl = document.querySelector('.showcase-timeline-progress');
-                const dotEl = document.querySelector('.showcase-timeline-dot');
-                if (progressEl) {
-                    progressEl.style.height = `${targetY}px`;
-                }
-                if (dotEl) {
-                    dotEl.style.transform = `translateY(${targetY}px)`;
-                }
-            }
-        }
-    });
+    // Wrap scroll trigger pinning in matchMedia to prevent scroll-blocking on mobile/tablet
+    const mm = gsap.matchMedia();
 
-    // Click handlers for steps and dots
-    document.querySelectorAll('.showcase-step-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const stepNum = parseInt(item.getAttribute('data-step'));
-            const st = ScrollTrigger.getById("showcase-scroll");
-            if (st) {
-                const targetScroll = st.start + (st.end - st.start) * (stepNum - 1) / (totalSteps - 1);
-                if (window.__lenis) {
-                    window.__lenis.scrollTo(targetScroll, { duration: 0.8 });
-                } else {
-                    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    mm.add("(min-width: 1025px)", () => {
+        // Timeline mapping scroll scrub to step activation on desktop
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                id: "showcase-scroll",
+                trigger: ".showcase-scroll-container",
+                start: "top top",
+                end: "+=3200",
+                scrub: 0.3,
+                pin: true,
+                anticipatePin: 1,
+                onUpdate: (self) => {
+                    const step = Math.min(totalSteps, Math.max(1, Math.round(self.progress * (totalSteps - 1)) + 1));
+                    if (currentStep !== step) {
+                        currentStep = step;
+                        
+                        document.querySelectorAll('.showcase-step-item').forEach(item => {
+                            item.classList.toggle('active', parseInt(item.getAttribute('data-step')) === step);
+                        });
+                        
+                        document.querySelectorAll('.showcase-panel').forEach(panel => {
+                            panel.classList.toggle('active', parseInt(panel.getAttribute('data-panel')) === step);
+                        });
+                        
+                        document.querySelectorAll('.showcase-dot').forEach(dot => {
+                            dot.classList.toggle('active', parseInt(dot.getAttribute('data-dot')) === step);
+                        });
+                    }
+                    
+                    // Smoothly update the progress bar and dot position
+                    const targetY = getSmoothYForProgress(self.progress);
+                    const progressEl = document.querySelector('.showcase-timeline-progress');
+                    const dotEl = document.querySelector('.showcase-timeline-dot');
+                    if (progressEl) {
+                        progressEl.style.height = `${targetY}px`;
+                    }
+                    if (dotEl) {
+                        dotEl.style.transform = `translateY(${targetY}px)`;
+                    }
                 }
             }
         });
+
+        // Click handlers for steps and dots (only functional on desktop)
+        document.querySelectorAll('.showcase-step-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const stepNum = parseInt(item.getAttribute('data-step'));
+                const st = ScrollTrigger.getById("showcase-scroll");
+                if (st) {
+                    const targetScroll = st.start + (st.end - st.start) * (stepNum - 1) / (totalSteps - 1);
+                    if (window.__lenis) {
+                        window.__lenis.scrollTo(targetScroll, { duration: 0.8 });
+                    } else {
+                        window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                    }
+                }
+            });
+        });
+
+        document.querySelectorAll('.showcase-dot').forEach(dot => {
+            dot.addEventListener('click', () => {
+                const dotNum = parseInt(dot.getAttribute('data-dot'));
+                const st = ScrollTrigger.getById("showcase-scroll");
+                if (st) {
+                    const targetScroll = st.start + (st.end - st.start) * (dotNum - 1) / (totalSteps - 1);
+                    if (window.__lenis) {
+                        window.__lenis.scrollTo(targetScroll, { duration: 0.8 });
+                    } else {
+                        window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                    }
+                }
+            });
+        });
     });
 
-    document.querySelectorAll('.showcase-dot').forEach(dot => {
-        dot.addEventListener('click', () => {
-            const dotNum = parseInt(dot.getAttribute('data-dot'));
-            const st = ScrollTrigger.getById("showcase-scroll");
-            if (st) {
-                const targetScroll = st.start + (st.end - st.start) * (dotNum - 1) / (totalSteps - 1);
-                if (window.__lenis) {
-                    window.__lenis.scrollTo(targetScroll, { duration: 0.8 });
-                } else {
-                    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
-                }
-            }
+    mm.add("(max-width: 1024px)", () => {
+        // On mobile, force all steps to be active or style them statically
+        document.querySelectorAll('.showcase-step-item').forEach(item => {
+            item.classList.add('active');
         });
     });
 

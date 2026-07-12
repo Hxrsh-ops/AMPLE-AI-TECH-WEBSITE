@@ -1924,63 +1924,13 @@ body:not(.js-loaded) .amp-fade {
 /* ──────────────────────────────────────────────────────────
    AMPLEAI PROCESS SECTION OVERLAPPING GRID LAYOUT (Desktop)
    ────────────────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────
+   AMPLEAI PROCESS SECTION GRID RESET (Desktop)
+   ────────────────────────────────────────────────────────── */
 @media (min-width: 1200px) {
-  /* Override overflow: clip on ancestors to allow sticky cards to stick */
-  .framer-hdXpx,
-  .framer-zSbuN,
-  .framer-uj2855,
-  .framer-k3gym4,
-  .framer-8zt6fp {
-    overflow: visible !important;
-  }
-
   .framer-zSbuN .framer-ly6508 {
-    grid-template-columns: repeat(2, minmax(50px, 1fr)) !important;
-    grid-template-rows: 1fr !important;
-    grid-auto-rows: unset !important;
-    /* Preserve original min-height (150vh) so it doesn't collapse and overlap next section */
-    position: relative !important;
-  }
-
-  /* Override the wrapper .ssr-variant display from contents to flex to allow sticky positioning */
-  .framer-zSbuN .framer-ly6508 > .ssr-variant:nth-child(1),
-  .framer-zSbuN .framer-ly6508 > .ssr-variant:nth-child(3),
-  .framer-zSbuN .framer-ly6508 > .ssr-variant:nth-child(5),
-  .framer-zSbuN .framer-ly6508 > .ssr-variant:nth-child(7) {
-    display: flex !important;
-    position: sticky !important;
-    top: 270px !important;
-    grid-row: 1 !important;
-    place-self: start !important;
-    width: 100% !important;
+    min-height: auto !important;
     height: auto !important;
-  }
-
-  .framer-zSbuN .framer-ly6508 > .ssr-variant:nth-child(1) {
-    grid-column: 1 !important;
-    z-index: 1 !important;
-  }
-  .framer-zSbuN .framer-ly6508 > .ssr-variant:nth-child(3) {
-    grid-column: 2 !important;
-    z-index: 1 !important;
-  }
-  .framer-zSbuN .framer-ly6508 > .ssr-variant:nth-child(5) {
-    grid-column: 1 !important;
-    z-index: 2 !important;
-  }
-  .framer-zSbuN .framer-ly6508 > .ssr-variant:nth-child(7) {
-    grid-column: 2 !important;
-    z-index: 2 !important;
-  }
-
-  .framer-zSbuN .framer-9hd1tq-container,
-  .framer-zSbuN .framer-sb1e2m-container,
-  .framer-zSbuN .framer-1qzupzc-container,
-  .framer-zSbuN .framer-sc5l4v-container {
-    position: relative !important;
-    top: auto !important;
-    height: 400px !important;
-    width: 100% !important;
   }
 }
 
@@ -3834,14 +3784,18 @@ a:visited .table-redirect-arrow-wrapper svg {
     position: absolute !important;
     top: 50% !important;
     transform: translateY(-50%) !important;
-    right: 2% !important;
+    right: -6% !important;
     left: auto !important;
     height: auto !important;
-    width: 42vw !important;
-    max-width: 750px !important;
+    width: 38vw !important;
+    max-width: 680px !important;
     aspect-ratio: 1.1111111111111112 !important;
-    z-index: 1 !important;
+    z-index: 0 !important;
     pointer-events: none !important;
+  }
+  .framer-zSbuN .framer-416ia6 {
+    z-index: 2 !important;
+    position: relative !important;
   }
 }
 
@@ -3911,8 +3865,8 @@ section {
 }
 
 /* Form widths and layout alignment on small screens */
+/* Form widths and layout alignment on small screens */
 @media (max-width: 809.98px) {
-  form,
   form.framer-jyaash,
   form.framer-9on65k,
   .framer-vxmtgk form {
@@ -3921,11 +3875,16 @@ section {
     box-sizing: border-box !important;
   }
   
-  form label,
-  form input,
-  form textarea,
-  form select,
-  form button {
+  form.framer-jyaash input[type="text"],
+  form.framer-jyaash input[type="email"],
+  form.framer-jyaash input[type="tel"],
+  form.framer-jyaash textarea,
+  form.framer-jyaash select,
+  form.framer-9on65k input[type="text"],
+  form.framer-9on65k input[type="email"],
+  form.framer-9on65k input[type="tel"],
+  form.framer-9on65k textarea,
+  form.framer-9on65k select {
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
@@ -3967,3 +3926,76 @@ footer.ssr-variant {
 }
 
 
+/* why-delay-hurts mobile calibration */
+@media (max-width: 900px) {
+  #why-delay-hurts .wdh-container {
+    padding: 0 20px !important;
+    box-sizing: border-box !important;
+  }
+  #why-delay-hurts .wdh-row {
+    margin: 0 !important;
+    padding: 24px 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px !important;
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+  }
+  #why-delay-hurts .wdh-row:last-child {
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+  }
+  #why-delay-hurts .wdh-row-left {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+  #why-delay-hurts .wdh-row-left span.text {
+    font-size: 16px !important;
+  }
+  #why-delay-hurts .wdh-pill-container {
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: auto !important;
+    width: auto !important;
+    margin: 8px 0 !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    pointer-events: auto !important;
+    transform: none !important;
+  }
+  #why-delay-hurts .wdh-pill {
+    position: relative !important;
+    left: 0 !important;
+    transform: none !important;
+    font-size: 18px !important;
+    padding: 8px 16px !important;
+    min-width: 90px !important;
+    display: inline-block !important;
+    margin: 0 !important;
+    text-align: center !important;
+  }
+  #why-delay-hurts .wdh-row-right {
+    width: 100% !important;
+    text-align: left !important;
+    margin-top: 4px !important;
+    font-size: 13px !important;
+  }
+  #why-delay-hurts .wdh-row-desc {
+    max-height: none !important;
+    margin-top: 8px !important;
+    padding-left: 0 !important;
+    display: block !important;
+    opacity: 0.8 !important;
+  }
+  #why-delay-hurts .wdh-title {
+    font-size: 32px !important;
+    line-height: 1.15 !important;
+  }
+  #why-delay-hurts .wdh-header {
+    margin-bottom: 40px !important;
+  }
+}
