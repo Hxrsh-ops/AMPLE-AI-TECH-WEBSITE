@@ -3780,15 +3780,28 @@ a:visited .table-redirect-arrow-wrapper svg {
 
 /* 1. Homepage Hero Robot Repositioning & Scale (Bug 1) */
 @media (min-width: 1200px) {
+  /* Allow robot to visually overflow its container downward to fill hero */
+  .framer-zSbuN .framer-1ty4rw4 {
+    overflow: visible !important;
+  }
+  .framer-zSbuN #image-move {
+    overflow: visible !important;
+  }
   .framer-zSbuN .framer-1dr2fdp {
     position: absolute !important;
-    top: 52% !important;
-    transform: translateY(-50%) !important;
-    right: 20vw !important;
+    /* Container bottom = 822px, hero bottom = 1104px, gap = 282px fixed.
+       bottom: -282px anchors robot bottom to hero bottom across all desktop widths. */
+    bottom: -282px !important;
+    top: auto !important;
+    transform: none !important;
+    /* right: 7vw horizontally centers robot head in the AMPLIFY / AI'S gap
+       (container right edge=1382px, gap center=834px, half-width=446px → 1382-834-446=102px≈7vw) */
+    right: 7vw !important;
     left: auto !important;
+    /* width: 62vw gives robot height ~804px, placing head at ~300px (within text band) */
+    width: 62vw !important;
+    max-width: none !important;
     height: auto !important;
-    width: 38vw !important;
-    max-width: 680px !important;
     aspect-ratio: 1.1111111111111112 !important;
     z-index: 0 !important;
     pointer-events: none !important;
