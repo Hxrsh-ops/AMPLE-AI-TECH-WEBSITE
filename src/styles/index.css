@@ -3782,9 +3782,9 @@ a:visited .table-redirect-arrow-wrapper svg {
 @media (min-width: 1200px) {
   .framer-zSbuN .framer-1dr2fdp {
     position: absolute !important;
-    top: 50% !important;
+    top: 52% !important;
     transform: translateY(-50%) !important;
-    right: -6% !important;
+    right: 20vw !important;
     left: auto !important;
     height: auto !important;
     width: 38vw !important;
@@ -3997,5 +3997,72 @@ footer.ssr-variant {
   }
   #why-delay-hurts .wdh-header {
     margin-bottom: 40px !important;
+  }
+}
+
+/* ── ADDITIONAL STABILIZATION & CALIBRATION PASS ── */
+
+/* Bug 2: "How it works" and "Meet the experts" wrapping fix */
+.framer-1887wax, .framer-1887wax p, .framer-1887wax span,
+.framer-30sh5b, .framer-30sh5b p, .framer-30sh5b span {
+  white-space: nowrap !important;
+}
+
+/* Bug 3: Mobile Stats Layout ("Built for the Future of Work") */
+@media (max-width: 809px) {
+  .framer-1mcspex {
+    flex-flow: column !important;
+    align-items: flex-start !important;
+    gap: 32px !important;
+  }
+  .framer-1yqdwa7 {
+    display: none !important; /* Hide divider line */
+  }
+  .framer-1vglvju, .framer-1fvg53z {
+    width: 100% !important;
+  }
+  .future-stat-num-box {
+    display: flex !important;
+    align-items: baseline !important;
+    font-size: 2.75rem !important;
+    white-space: nowrap !important;
+    margin-bottom: 4px !important;
+  }
+  .future-stat-label {
+    font-size: 0.95rem !important;
+    line-height: 1.4 !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Bug 4: Subpages Mobile Menu Button Contrast (Light Variant Headers) */
+div[data-framer-name^="White - "] .framer-4sbh13 p,
+div[data-framer-name^="White - "] .framer-4sbh13::before,
+div[data-framer-name^="White - "] div[data-code-component-plugin-id]::before {
+  color: #0d0d0d !important;
+}
+
+/* Bug 5: Mobile Menu Overlay Scroll Lock Fix */
+@media (max-width: 768px) {
+  body.ampleai-menu-open #ampleai-menu-drawer {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  #ampleai-menu-topbar {
+    position: sticky !important;
+    top: 0 !important;
+    background: #080808 !important;
+    flex-shrink: 0 !important;
+    z-index: 10 !important;
+  }
+  #ampleai-menu-body {
+    position: relative !important;
+    top: 0 !important;
+    height: auto !important;
+    overflow-y: visible !important;
+    display: block !important;
   }
 }
