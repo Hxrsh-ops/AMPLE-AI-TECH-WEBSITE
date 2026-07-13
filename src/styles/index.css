@@ -3794,16 +3794,18 @@ a:visited .table-redirect-arrow-wrapper svg {
     bottom: -282px !important;
     top: auto !important;
     transform: none !important;
-    /* right: 1vw horizontally centers robot head in the AMPLIFY / AI'S gap
-       (container right edge=1382px, gap center=834px, half-width=532px → 1382-834-532=16px≈1vw) */
-    right: 1vw !important;
+    /* right: -7vw → box_center=950px; visual figure (14px left of box center) = 936px
+       AMPLIFY right ≈ 864px, AI'S left ≈ 1008px → gap center = (864+1008)/2 = 936px ✓ */
+    right: -7vw !important;
     left: auto !important;
     /* width: 74vw gives robot height ~959px, placing head top at ~145px (at AMPLIFY text level) */
     width: 74vw !important;
     max-width: none !important;
     height: auto !important;
     aspect-ratio: 1.1111111111111112 !important;
-    z-index: 0 !important;
+    /* z-index: 3 puts robot in FRONT of the text container (.framer-416ia6 z-index:2)
+       so EDGE text appears behind the robot as desired */
+    z-index: 3 !important;
     pointer-events: none !important;
   }
   .framer-zSbuN .framer-416ia6 {
